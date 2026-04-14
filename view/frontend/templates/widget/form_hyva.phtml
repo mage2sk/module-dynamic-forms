@@ -1,0 +1,428 @@
+<?php
+declare(strict_types=1);
+/**
+ * Panth DynamicForms — Hyva Alpine.js Template
+ * @var \Panth\DynamicForms\Block\Widget\DynamicForm $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$form = $block->getForm();
+if (!$form) return;
+$fields = $block->getFields();
+if (empty($fields)) return;
+
+$formId        = (int) $form->getId();
+$fid           = $block->getFormIdentifier();
+$showTitle     = $block->showTitle();
+$showDesc      = $block->showDescription();
+$contentAbove  = $block->renderCmsContent($form->getData('content_above'));
+$contentBelow  = $block->renderCmsContent($form->getData('content_below'));
+$btnText       = $escaper->escapeHtml($form->getData('submit_button_text') ?: __('Submit'));
+$successMsg    = $form->getData('success_message') ?: (string)__('Thank you! Your form has been submitted.');
+$redirectUrl   = $form->getData('redirect_url') ?: '';
+$submitUrl     = $block->getFormUrl();
+$uploadUrl     = $block->getUploadUrl();
+$urlKey        = $form->getData('url_key');
+$storeBaseUrl  = rtrim($block->getBaseUrl(), '/');
+$canonicalUrl  = $urlKey ? $storeBaseUrl . '/pages/' . $urlKey : '';
+?>
+
+<style>
+.pdf{--df-primary:var(--color-primary, #0D9488);--df-primary-h:var(--color-primary-darker, #0F766E);--df-error:#DC2626;--df-success:#16A34A;--df-bg:#fff;--df-border:#D1D5DB;--df-focus:var(--color-primary, #0D9488);--df-label:#374151;--df-text:#111827;--df-muted:#6B7280;--df-input-bg:#FFFFFF;--df-radius:8px;--df-gap:16px;max-width:760px;margin:0 auto}
+.pdf-card{background:var(--df-bg);border-radius:16px;padding:32px 36px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04)}
+@media(max-width:640px){.pdf-card{padding:20px 16px;border-radius:12px}}
+.pdf-title{font-size:28px;font-weight:800;color:var(--df-text);margin:0 0 6px;text-align:center}
+.pdf-desc{font-size:15px;color:var(--df-muted);margin:0 0 24px;text-align:center;line-height:1.5}
+.pdf-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--df-gap)}
+.pdf-full{grid-column:span 12}.pdf-half{grid-column:span 6}.pdf-third{grid-column:span 4}
+@media(max-width:640px){.pdf-half,.pdf-third{grid-column:span 12}}
+.pdf-label{display:block;font-size:14px;font-weight:600;color:var(--df-label);margin-bottom:6px}
+.pdf-req{color:var(--df-error);margin-left:2px}
+.pdf-input,.pdf-select,.pdf-textarea{display:block;width:100%;padding:11px 14px;font-size:15px;color:var(--df-text);background:var(--df-input-bg);border:1.5px solid var(--df-border);border-radius:var(--df-radius);outline:none;transition:border-color .2s,box-shadow .2s;font-family:inherit;box-sizing:border-box}
+.pdf-input:focus,.pdf-select:focus,.pdf-textarea:focus{border-color:var(--df-focus);box-shadow:0 0 0 3px rgba(13,148,136,.1)}
+.pdf-input.err,.pdf-select.err,.pdf-textarea.err{border-color:var(--df-error);box-shadow:0 0 0 3px rgba(220,38,38,.08)}
+.pdf-textarea{min-height:120px;resize:vertical}
+.pdf-select{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+.pdf-select option{background:#fff;color:var(--df-text);padding:8px 12px}
+.pdf-err{font-size:12px;color:var(--df-error);margin-top:4px;min-height:0;overflow:hidden;transition:all .2s}
+.pdf-check-group,.pdf-radio-group{display:flex;flex-wrap:wrap;gap:10px 20px}
+.pdf-check-item,.pdf-radio-item{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--df-text)}
+.pdf-check-item input,.pdf-radio-item input{width:18px;height:18px;accent-color:var(--df-primary);cursor:pointer}
+.pdf-drop{border:2px dashed var(--df-border);border-radius:var(--df-radius);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--df-input-bg)}
+.pdf-drop:hover,.pdf-drop.drag{border-color:var(--df-primary);background:rgba(13,148,136,.03)}
+.pdf-drop-icon{width:32px;height:32px;margin:0 auto 8px;color:var(--df-muted)}
+.pdf-drop-text{font-size:13px;color:var(--df-muted)}
+.pdf-drop-file{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#F0FDFA;border-radius:8px;margin-top:8px;font-size:13px;color:var(--df-primary)}
+.pdf-drop-file button{background:none;border:none;color:var(--df-error);cursor:pointer;font-size:16px;padding:0 4px}
+.pdf-progress{height:3px;background:var(--df-border);border-radius:2px;margin-top:6px;overflow:hidden}
+.pdf-progress-bar{height:100%;background:var(--df-primary);transition:width .3s}
+.pdf-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 36px;font-size:16px;font-weight:700;color:#fff;background:var(--df-primary);border:none;border-radius:var(--df-radius);cursor:pointer;transition:all .2s;font-family:inherit;margin-top:8px;min-width:180px}
+.pdf-btn:hover{background:var(--df-primary-h)}.pdf-btn:disabled{opacity:.6;cursor:not-allowed}
+.pdf-btn svg{width:18px;height:18px;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pdf-success-card{text-align:center;padding:48px 32px;background:#F0FDF4;border-radius:16px;border:1px solid #BBF7D0}
+.pdf-success-icon{width:56px;height:56px;margin:0 auto 16px;color:var(--df-success)}
+.pdf-success-title{font-size:22px;font-weight:700;color:var(--df-text);margin:0 0 8px}
+.pdf-success-text{font-size:15px;color:var(--df-muted);margin:0}
+.pdf-alert{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--df-radius);margin-bottom:20px;font-size:14px}
+.pdf-alert-err{background:#FEF2F2;color:var(--df-error);border:1px solid #FECACA}
+</style>
+
+<?php
+$pageTitle = $form->getData('title') ?: $form->getData('name');
+?>
+<h1 class="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-6"><?= /* @noEscape */ $escaper->escapeHtml($pageTitle) ?></h1>
+
+<?php if ($contentAbove): ?>
+<div class="prose max-w-none mb-6"><?= /** @noEscape */ $contentAbove ?></div>
+<?php endif; ?>
+
+<div class="pdf" id="quote-form" x-data="<?= /* @noEscape */ $escaper->escapeHtmlAttr($fid) ?>()" x-cloak>
+
+    <template x-if="success">
+        <div class="pdf-success-card">
+            <svg class="pdf-success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <p class="pdf-success-title" x-text="successMessage"></p>
+            <p class="pdf-success-text"><?= /* @noEscape */ $escaper->escapeHtml(__('We will get back to you shortly.')) ?></p>
+        </div>
+    </template>
+
+    <template x-if="!success">
+        <div class="pdf-card">
+            <?php if ($showTitle && $form->getData('title')): ?>
+            <h2 class="pdf-title"><?= /* @noEscape */ $escaper->escapeHtml($form->getData('title')) ?></h2>
+            <?php endif; ?>
+            <?php if ($showDesc && $form->getData('description')): ?>
+            <p class="pdf-desc"><?= /* @noEscape */ $escaper->escapeHtml($form->getData('description')) ?></p>
+            <?php endif; ?>
+
+            <template x-if="globalError">
+                <div class="pdf-alert pdf-alert-err">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-width="2" d="M12 8v4m0 4h.01"/></svg>
+                    <span x-text="globalError"></span>
+                </div>
+            </template>
+
+            <form @submit.prevent="submit()" novalidate>
+                <input type="hidden" name="form_key" :value="formKey"/>
+                <input type="hidden" name="form_id" value="<?= (int) $formId ?>"/>
+
+                <div class="pdf-grid">
+                    <?php foreach ($fields as $f):
+                        $type     = $f->getData('field_type');
+                        $name     = $f->getData('name');
+                        $label    = $f->getData('label');
+                        $ph       = $f->getData('placeholder') ?: '';
+                        $req      = (bool)$f->getData('is_required');
+                        $def      = $f->getData('default_value') ?: '';
+                        $w        = $f->getData('width') ?: 'full';
+                        $css      = $f->getData('css_class') ?: '';
+                        $opts     = $block->getFieldOptions($f);
+                        $colClass = match($w) { 'half'=>'pdf-half','third'=>'pdf-third',default=>'pdf-full' };
+                        $eName    = $escaper->escapeHtmlAttr($name);
+                        $eLabel   = $escaper->escapeHtml($label);
+                    ?>
+
+                    <?php if ($type === 'hidden'): ?>
+                        <input type="hidden" name="<?= /* @noEscape */ $eName ?>" x-model="fd.<?= /* @noEscape */ $eName ?>" value="<?= /* @noEscape */ $escaper->escapeHtmlAttr($def) ?>"/>
+                    <?php else: ?>
+                        <div class="<?= /* @noEscape */ $escaper->escapeHtmlAttr($colClass) ?> <?= /* @noEscape */ $escaper->escapeHtmlAttr($css) ?>">
+                            <label class="pdf-label" for="df<?= /* @noEscape */ $formId ?>_<?= /* @noEscape */ $eName ?>"><?= /* @noEscape */ $eLabel ?><?php if ($req): ?><span class="pdf-req">*</span><?php endif; ?></label>
+
+                            <?php if ($type === 'text' || $type === 'email' || $type === 'phone' || $type === 'number' || $type === 'date'): ?>
+                                <input id="df<?= /* @noEscape */ $formId ?>_<?= /* @noEscape */ $eName ?>"
+                                       type="<?= /* @noEscape */ $escaper->escapeHtmlAttr($type === 'phone' ? 'tel' : $type) ?>"
+                                       name="<?= /* @noEscape */ $eName ?>"
+                                       class="pdf-input" :class="{'err': errs.<?= /* @noEscape */ $eName ?>}"
+                                       placeholder="<?= /* @noEscape */ $escaper->escapeHtmlAttr($ph) ?>"
+                                       x-model="fd.<?= /* @noEscape */ $eName ?>"
+                                       @blur="validate('<?= /* @noEscape */ $escaper->escapeJs($name) ?>')"/>
+
+                            <?php elseif ($type === 'textarea' || $type === 'wysiwyg'): ?>
+                                <textarea id="df<?= /* @noEscape */ $formId ?>_<?= /* @noEscape */ $eName ?>"
+                                          name="<?= /* @noEscape */ $eName ?>"
+                                          class="pdf-textarea" :class="{'err': errs.<?= /* @noEscape */ $eName ?>}"
+                                          placeholder="<?= /* @noEscape */ $escaper->escapeHtmlAttr($ph) ?>"
+                                          rows="4"
+                                          x-model="fd.<?= /* @noEscape */ $eName ?>"
+                                          @blur="validate('<?= /* @noEscape */ $escaper->escapeJs($name) ?>')"></textarea>
+
+                            <?php elseif ($type === 'select'): ?>
+                                <select id="df<?= /* @noEscape */ $formId ?>_<?= /* @noEscape */ $eName ?>"
+                                        name="<?= /* @noEscape */ $eName ?>"
+                                        class="pdf-select" :class="{'err': errs.<?= /* @noEscape */ $eName ?>}"
+                                        x-model="fd.<?= /* @noEscape */ $eName ?>"
+                                        @change="validate('<?= /* @noEscape */ $escaper->escapeJs($name) ?>')">
+                                    <option value=""><?= /* @noEscape */ $escaper->escapeHtml(__('-- Please Select --')) ?></option>
+                                    <?php foreach ($opts as $opt): ?>
+                                    <option value="<?= /* @noEscape */ $escaper->escapeHtmlAttr(is_array($opt) ? ($opt['value'] ?? $opt['label'] ?? '') : $opt) ?>">
+                                        <?= /* @noEscape */ $escaper->escapeHtml(is_array($opt) ? ($opt['label'] ?? $opt['value'] ?? '') : $opt) ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+
+                            <?php elseif ($type === 'multiselect'): ?>
+                                <select id="df<?= /* @noEscape */ $formId ?>_<?= /* @noEscape */ $eName ?>"
+                                        name="<?= /* @noEscape */ $eName ?>[]" multiple
+                                        class="pdf-select" :class="{'err': errs.<?= /* @noEscape */ $eName ?>}" style="min-height:100px;background-image:none"
+                                        x-model="fd.<?= /* @noEscape */ $eName ?>"
+                                        @change="validate('<?= /* @noEscape */ $escaper->escapeJs($name) ?>')">
+                                    <?php foreach ($opts as $opt): ?>
+                                    <option value="<?= /* @noEscape */ $escaper->escapeHtmlAttr(is_array($opt) ? ($opt['value'] ?? $opt['label'] ?? '') : $opt) ?>">
+                                        <?= /* @noEscape */ $escaper->escapeHtml(is_array($opt) ? ($opt['label'] ?? $opt['value'] ?? '') : $opt) ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+
+                            <?php elseif ($type === 'checkbox'): ?>
+                                <div class="pdf-check-group">
+                                    <?php if (empty($opts)): ?>
+                                    <label class="pdf-check-item">
+                                        <input type="checkbox" name="<?= /* @noEscape */ $eName ?>" x-model="fd.<?= /* @noEscape */ $eName ?>" @change="validate('<?= /* @noEscape */ $escaper->escapeJs($name) ?>')"/>
+                                        <span><?= /* @noEscape */ $eLabel ?></span>
+                                    </label>
+                                    <?php else: foreach ($opts as $i => $opt):
+                                        $optVal = is_array($opt) ? ($opt['value'] ?? $opt['label'] ?? '') : $opt;
+                                        $optLbl = is_array($opt) ? ($opt['label'] ?? $opt['value'] ?? '') : $opt;
+                                    ?>
+                                    <label class="pdf-check-item">
+                                        <input type="checkbox" name="<?= /* @noEscape */ $eName ?>[]" value="<?= /* @noEscape */ $escaper->escapeHtmlAttr($optVal) ?>" x-model="fd.<?= /* @noEscape */ $eName ?>" @change="validate('<?= /* @noEscape */ $escaper->escapeJs($name) ?>')"/>
+                                        <span><?= /* @noEscape */ $escaper->escapeHtml($optLbl) ?></span>
+                                    </label>
+                                    <?php endforeach; endif; ?>
+                                </div>
+
+                            <?php elseif ($type === 'radio'): ?>
+                                <div class="pdf-radio-group">
+                                    <?php foreach ($opts as $opt):
+                                        $optVal = is_array($opt) ? ($opt['value'] ?? $opt['label'] ?? '') : $opt;
+                                        $optLbl = is_array($opt) ? ($opt['label'] ?? $opt['value'] ?? '') : $opt;
+                                    ?>
+                                    <label class="pdf-radio-item">
+                                        <input type="radio" name="<?= /* @noEscape */ $eName ?>" value="<?= /* @noEscape */ $escaper->escapeHtmlAttr($optVal) ?>" x-model="fd.<?= /* @noEscape */ $eName ?>" @change="validate('<?= /* @noEscape */ $escaper->escapeJs($name) ?>')"/>
+                                        <span><?= /* @noEscape */ $escaper->escapeHtml($optLbl) ?></span>
+                                    </label>
+                                    <?php endforeach; ?>
+                                </div>
+
+                            <?php elseif ($type === 'file'): ?>
+                                <div class="pdf-drop" :class="{'drag': dragging.<?= /* @noEscape */ $eName ?>}"
+                                     @click="$refs.file_<?= /* @noEscape */ $eName ?>.click()"
+                                     @dragover.prevent="dragging.<?= /* @noEscape */ $eName ?>=true"
+                                     @dragleave.prevent="dragging.<?= /* @noEscape */ $eName ?>=false"
+                                     @drop.prevent="dragging.<?= /* @noEscape */ $eName ?>=false; uploadFile('<?= /* @noEscape */ $escaper->escapeJs($name) ?>', $event.dataTransfer.files[0])"
+                                     x-show="!files.<?= /* @noEscape */ $eName ?>">
+                                    <svg class="pdf-drop-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                    <p class="pdf-drop-text"><?= /* @noEscape */ $escaper->escapeHtml(__('Click to upload or drag and drop')) ?></p>
+                                    <p style="font-size:11px;color:#9CA3AF;margin:4px 0 0"><?= /* @noEscape */ $escaper->escapeHtml(__('Max size: 10 MB')) ?></p>
+                                    <input type="file" x-ref="file_<?= /* @noEscape */ $eName ?>" class="hidden" style="display:none"
+                                           @change="uploadFile('<?= /* @noEscape */ $escaper->escapeJs($name) ?>', $event.target.files[0])"/>
+                                </div>
+                                <template x-if="uploading.<?= /* @noEscape */ $eName ?>">
+                                    <div class="pdf-progress"><div class="pdf-progress-bar" :style="'width:'+uploadProg.<?= /* @noEscape */ $eName ?>+'%'"></div></div>
+                                </template>
+                                <template x-if="files.<?= /* @noEscape */ $eName ?>">
+                                    <div class="pdf-drop-file">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                                        <span x-text="files.<?= /* @noEscape */ $eName ?>.name" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+                                        <button type="button" @click="removeFile('<?= /* @noEscape */ $escaper->escapeJs($name) ?>')">&times;</button>
+                                    </div>
+                                </template>
+                            <?php endif; ?>
+
+                            <template x-if="errs.<?= /* @noEscape */ $eName ?>">
+                                <p class="pdf-err" x-text="errs.<?= /* @noEscape */ $eName ?>"></p>
+                            </template>
+                        </div>
+                    <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+
+                <button type="submit" class="pdf-btn" :disabled="loading">
+                    <template x-if="loading">
+                        <svg fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" style="opacity:.25"/><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z" style="opacity:.75"/></svg>
+                    </template>
+                    <span x-text="loading ? '<?= /* @noEscape */ $escaper->escapeJs(__('Submitting...')) ?>' : '<?= /* @noEscape */ $escaper->escapeJs($btnText) ?>'"></span>
+                </button>
+            </form>
+        </div>
+    </template>
+</div>
+
+<?php if ($contentBelow): ?>
+<div class="prose max-w-none mt-6"><?= /** @noEscape */ $contentBelow ?></div>
+<?php endif; ?>
+
+<?php if ($canonicalUrl):
+    $createdAt = $form->getData('created_at') ?: date('c');
+    $updatedAt = $form->getData('updated_at') ?: $createdAt;
+?>
+<script type="application/ld+json">
+<?= /* @noEscape */ json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'WebPage',
+    'name' => $form->getData('meta_title') ?: ($form->getData('title') ?: $form->getData('name')),
+    'description' => $form->getData('meta_description') ?: ($form->getData('description') ?: ''),
+    'url' => $canonicalUrl,
+    'datePublished' => date('c', strtotime($createdAt)),
+    'dateModified' => date('c', strtotime($updatedAt)),
+    'mainEntity' => [
+        '@type' => 'ContactPage',
+        'name' => $form->getData('title') ?: $form->getData('name'),
+        'url' => $canonicalUrl,
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) ?>
+</script>
+<?php endif; ?>
+
+<script>
+function <?= /** @noEscape */ $fid ?>() {
+    const cfg = <?= /** @noEscape */ $block->getFormConfig() ?>;
+    const fieldsDef = <?= /** @noEscape */ $block->getFieldsJson() ?>;
+
+    return {
+        fd: {}, errs: {}, rules: {}, loading: false, success: false,
+        successMessage: '', globalError: '', formKey: '',
+        files: {}, uploading: {}, uploadProg: {}, dragging: {},
+
+        init() {
+            // Get form_key from cookie
+            const m = document.cookie.match(/form_key=([^;]+)/);
+            this.formKey = m ? m[1] : '';
+
+            // Initialize field values + rules
+            fieldsDef.forEach(f => {
+                if (f.type === 'checkbox' || f.type === 'multiselect') {
+                    this.fd[f.name] = f.default_value ? [f.default_value] : [];
+                } else {
+                    this.fd[f.name] = f.default_value || '';
+                }
+                this.errs[f.name] = '';
+                this.files[f.name] = null;
+                this.uploading[f.name] = false;
+                this.uploadProg[f.name] = 0;
+                this.dragging[f.name] = false;
+                this.rules[f.name] = { required: f.is_required, type: f.type, label: f.label };
+            });
+        },
+
+        validate(name) {
+            const r = this.rules[name];
+            if (!r) return true;
+            const v = this.fd[name];
+            const label = r.label;
+
+            // Required check
+            if (r.required) {
+                if (r.type === 'file') {
+                    if (!this.files[name]) { this.errs[name] = label + ' is required.'; return false; }
+                } else if (Array.isArray(v)) {
+                    if (v.length === 0) { this.errs[name] = label + ' is required.'; return false; }
+                } else if (!v || !String(v).trim()) {
+                    this.errs[name] = label + ' is required.'; return false;
+                }
+            }
+
+            // Type-specific
+            if (v && r.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+                this.errs[name] = 'Please enter a valid email address.'; return false;
+            }
+            if (v && r.type === 'phone' && !/^[\d\s\-+().]{7,20}$/.test(v)) {
+                this.errs[name] = 'Please enter a valid phone number.'; return false;
+            }
+            if (v && r.type === 'number' && isNaN(Number(v))) {
+                this.errs[name] = 'Please enter a valid number.'; return false;
+            }
+
+            this.errs[name] = '';
+            return true;
+        },
+
+        validateAll() {
+            let valid = true;
+            fieldsDef.forEach(f => {
+                if (f.type !== 'hidden' && !this.validate(f.name)) valid = false;
+            });
+            return valid;
+        },
+
+        async uploadFile(name, file) {
+            if (!file) return;
+            this.uploading[name] = true;
+            this.uploadProg[name] = 0;
+
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('form_key', this.formKey);
+            fd.append('field_name', name);
+
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) this.uploadProg[name] = Math.round((e.loaded / e.total) * 100);
+                };
+                const result = await new Promise((resolve, reject) => {
+                    xhr.onload = () => resolve(JSON.parse(xhr.responseText));
+                    xhr.onerror = () => reject(new Error('Upload failed'));
+                    xhr.open('POST', cfg.upload_url);
+                    xhr.send(fd);
+                });
+                if (result.success !== false && (result.file || result.name)) {
+                    this.files[name] = { name: file.name, file: result.file || result.name, url: result.url || '' };
+                    this.fd[name] = result.file || result.name;
+                    this.errs[name] = '';
+                } else {
+                    this.errs[name] = result.message || 'Upload failed.';
+                }
+            } catch (e) {
+                this.errs[name] = 'Upload failed. Please try again.';
+            }
+            this.uploading[name] = false;
+        },
+
+        removeFile(name) {
+            this.files[name] = null;
+            this.fd[name] = '';
+            if (this.$refs['file_' + name]) this.$refs['file_' + name].value = '';
+        },
+
+        async submit() {
+            this.globalError = '';
+            if (!this.validateAll()) {
+                this.globalError = '<?= /* @noEscape */ $escaper->escapeJs(__('Please correct the errors below.')) ?>';
+                return;
+            }
+            this.loading = true;
+
+            const fd = new FormData();
+            fd.append('form_key', this.formKey);
+            fd.append('form_id', '<?= /* @noEscape */ $formId ?>');
+            fieldsDef.forEach(f => {
+                const v = this.fd[f.name];
+                if (Array.isArray(v)) {
+                    v.forEach(item => fd.append(f.name + '[]', item));
+                } else {
+                    fd.append(f.name, v || '');
+                }
+            });
+
+            try {
+                const resp = await fetch(cfg.submit_url, { method: 'POST', body: fd });
+                const data = await resp.json();
+                if (data.success) {
+                    this.success = true;
+                    this.successMessage = data.message || cfg.success_message || '<?= /* @noEscape */ $escaper->escapeJs($successMsg) ?>';
+                    if (cfg.redirect_url) setTimeout(() => window.location.href = cfg.redirect_url, 2000);
+                } else {
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(k => { this.errs[k] = data.errors[k]; });
+                    }
+                    this.globalError = data.message || '<?= /* @noEscape */ $escaper->escapeJs(__('Something went wrong. Please try again.')) ?>';
+                }
+            } catch (e) {
+                this.globalError = '<?= /* @noEscape */ $escaper->escapeJs(__('Network error. Please try again.')) ?>';
+            }
+            this.loading = false;
+        }
+    };
+}
+</script>

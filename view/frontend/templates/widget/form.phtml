@@ -1,0 +1,393 @@
+<?php
+declare(strict_types=1);
+/**
+ * Panth DynamicForms — Luma Template (jQuery/RequireJS)
+ * @var \Panth\DynamicForms\Block\Widget\DynamicForm $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$form = $block->getForm();
+if (!$form) return;
+$fields = $block->getFields();
+if (empty($fields)) return;
+
+$formId        = (int) $form->getId();
+$showTitle     = $block->showTitle();
+$showDesc      = $block->showDescription();
+$contentAbove  = $block->renderCmsContent($form->getData('content_above'));
+$contentBelow  = $block->renderCmsContent($form->getData('content_below'));
+$btnText       = $escaper->escapeHtml($form->getData('submit_button_text') ?: __('Submit'));
+$successMsg    = $escaper->escapeJs($form->getData('success_message') ?: (string)__('Thank you! Your form has been submitted.'));
+$redirectUrl   = $form->getData('redirect_url') ?: '';
+$submitUrl     = $block->getFormUrl();
+$uploadUrl     = $block->getUploadUrl();
+$formKey       = $block->getViewFileUrl('') ? '' : '';
+$pageTitle     = $form->getData('title') ?: $form->getData('name');
+$urlKey        = $form->getData('url_key');
+$storeBaseUrl  = rtrim($block->getBaseUrl(), '/');
+$canonicalUrl  = $urlKey ? $storeBaseUrl . '/pages/' . $urlKey : '';
+
+// Get form key via block (DI-injected)
+$formKeyValue = $block->getFormKey();
+?>
+
+<style>
+.pdf{--df-primary:var(--color-primary, #0D9488);--df-primary-h:var(--color-primary-darker, #0F766E);--df-error:#DC2626;--df-success:#16A34A;--df-bg:#fff;--df-border:#D1D5DB;--df-focus:var(--color-primary, #0D9488);--df-label:#374151;--df-text:#111827;--df-muted:#6B7280;--df-input-bg:#fff;--df-radius:8px;--df-gap:16px;max-width:760px;margin:0 auto}
+.pdf-card{background:var(--df-bg);border-radius:16px;padding:32px 36px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04)}
+@media(max-width:640px){.pdf-card{padding:20px 16px;border-radius:12px}}
+.pdf-title{font-size:28px;font-weight:800;color:var(--df-text);margin:0 0 6px;text-align:center}
+.pdf-desc{font-size:15px;color:var(--df-muted);margin:0 0 24px;text-align:center;line-height:1.5}
+.pdf-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--df-gap)}
+.pdf-full{grid-column:span 12}.pdf-half{grid-column:span 6}.pdf-third{grid-column:span 4}
+@media(max-width:640px){.pdf-half,.pdf-third{grid-column:span 12}}
+.pdf-label{display:block;font-size:14px;font-weight:600;color:var(--df-label);margin-bottom:6px}
+.pdf-req{color:var(--df-error);margin-left:2px}
+.pdf-input,.pdf-select,.pdf-textarea{display:block;width:100%;padding:11px 14px;font-size:15px;color:var(--df-text);background:var(--df-input-bg);border:1.5px solid var(--df-border);border-radius:var(--df-radius);outline:none;transition:border-color .2s,box-shadow .2s;font-family:inherit;box-sizing:border-box}
+.pdf-input:focus,.pdf-select:focus,.pdf-textarea:focus{border-color:var(--df-focus);box-shadow:0 0 0 3px rgba(13,148,136,.1)}
+.pdf-input.err,.pdf-select.err,.pdf-textarea.err{border-color:var(--df-error)!important;box-shadow:0 0 0 3px rgba(220,38,38,.08)!important}
+.pdf-textarea{min-height:120px;resize:vertical}
+.pdf-select{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+.pdf-err{font-size:12px;color:var(--df-error);margin-top:4px;display:none}
+.pdf-err.visible{display:block}
+.pdf-check-group,.pdf-radio-group{display:flex;flex-wrap:wrap;gap:10px 20px}
+.pdf-check-item,.pdf-radio-item{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--df-text)}
+.pdf-check-item input,.pdf-radio-item input{width:18px;height:18px;accent-color:var(--df-primary);cursor:pointer}
+.pdf-drop{border:2px dashed var(--df-border);border-radius:var(--df-radius);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--df-input-bg)}
+.pdf-drop:hover{border-color:var(--df-primary);background:rgba(13,148,136,.03)}
+.pdf-drop-icon{width:32px;height:32px;margin:0 auto 8px;color:var(--df-muted)}
+.pdf-drop-text{font-size:13px;color:var(--df-muted)}
+.pdf-drop-file{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#F0FDFA;border-radius:8px;margin-top:8px;font-size:13px;color:var(--df-primary)}
+.pdf-drop-file button{background:none;border:none;color:var(--df-error);cursor:pointer;font-size:16px;padding:0 4px}
+.pdf-progress{height:3px;background:var(--df-border);border-radius:2px;margin-top:6px;overflow:hidden;display:none}
+.pdf-progress.active{display:block}
+.pdf-progress-bar{height:100%;background:var(--df-primary);transition:width .3s;width:0}
+.pdf-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 36px;font-size:16px;font-weight:700;color:#fff;background:var(--df-primary);border:none;border-radius:var(--df-radius);cursor:pointer;transition:all .2s;font-family:inherit;margin-top:8px;min-width:180px}
+.pdf-btn:hover{background:var(--df-primary-h)}.pdf-btn:disabled{opacity:.6;cursor:not-allowed}
+.pdf-btn .spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:pdfspin 1s linear infinite}
+@keyframes pdfspin{to{transform:rotate(360deg)}}
+.pdf-success-card{text-align:center;padding:48px 32px;background:#F0FDF4;border-radius:16px;border:1px solid #BBF7D0;display:none}
+.pdf-success-card.visible{display:block}
+.pdf-success-icon{width:56px;height:56px;margin:0 auto 16px;color:var(--df-success)}
+.pdf-success-title{font-size:22px;font-weight:700;color:var(--df-text);margin:0 0 8px}
+.pdf-success-text{font-size:15px;color:var(--df-muted);margin:0}
+.pdf-alert{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--df-radius);margin-bottom:20px;font-size:14px;display:none}
+.pdf-alert.visible{display:flex}
+.pdf-alert-err{background:#FEF2F2;color:var(--df-error);border:1px solid #FECACA}
+.pdf-h1{font-size:2rem;font-weight:700;text-align:center;color:#111827;margin-bottom:1.5rem}
+</style>
+
+<h1 class="pdf-h1"><?= /* @noEscape */ $escaper->escapeHtml($pageTitle) ?></h1>
+
+<?php if ($contentAbove): ?>
+<div style="margin-bottom:24px"><?= /** @noEscape */ $contentAbove ?></div>
+<?php endif; ?>
+
+<div class="pdf" id="pdf-wrapper-<?= /* @noEscape */ $formId ?>">
+    <div class="pdf-success-card" id="pdf-success-<?= /* @noEscape */ $formId ?>">
+        <svg class="pdf-success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <p class="pdf-success-title" id="pdf-success-msg-<?= /* @noEscape */ $formId ?>"></p>
+        <p class="pdf-success-text"><?= /* @noEscape */ $escaper->escapeHtml(__('We will get back to you shortly.')) ?></p>
+    </div>
+
+    <div class="pdf-card" id="pdf-form-card-<?= /* @noEscape */ $formId ?>">
+        <?php if ($showTitle && $form->getData('title')): ?>
+        <h2 class="pdf-title"><?= /* @noEscape */ $escaper->escapeHtml($form->getData('title')) ?></h2>
+        <?php endif; ?>
+        <?php if ($showDesc && $form->getData('description')): ?>
+        <p class="pdf-desc"><?= /* @noEscape */ $escaper->escapeHtml($form->getData('description')) ?></p>
+        <?php endif; ?>
+
+        <div class="pdf-alert pdf-alert-err" id="pdf-global-err-<?= /* @noEscape */ $formId ?>">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-width="2" d="M12 8v4m0 4h.01"/></svg>
+            <span id="pdf-global-err-msg-<?= /* @noEscape */ $formId ?>"></span>
+        </div>
+
+        <form id="pdf-form-<?= /* @noEscape */ $formId ?>" novalidate>
+            <input type="hidden" name="form_key" value="<?= /* @noEscape */ $escaper->escapeHtmlAttr($formKeyValue) ?>"/>
+            <input type="hidden" name="form_id" value="<?= /* @noEscape */ $formId ?>"/>
+
+            <div class="pdf-grid">
+                <?php foreach ($fields as $f):
+                    $type   = $f->getData('field_type');
+                    $name   = $f->getData('name');
+                    $label  = $f->getData('label');
+                    $ph     = $f->getData('placeholder') ?: '';
+                    $req    = (bool)$f->getData('is_required');
+                    $def    = $f->getData('default_value') ?: '';
+                    $w      = $f->getData('width') ?: 'full';
+                    $opts   = $block->getFieldOptions($f);
+                    $colClass = match($w) { 'half'=>'pdf-half','third'=>'pdf-third',default=>'pdf-full' };
+                    $eName  = $escaper->escapeHtmlAttr($name);
+                    $eLabel = $escaper->escapeHtml($label);
+                ?>
+
+                <?php if ($type === 'hidden'): ?>
+                    <input type="hidden" name="<?= /* @noEscape */ $eName ?>" value="<?= /* @noEscape */ $escaper->escapeHtmlAttr($def) ?>"/>
+                <?php else: ?>
+                    <div class="<?= /* @noEscape */ $escaper->escapeHtmlAttr($colClass) ?>" data-field="<?= /* @noEscape */ $eName ?>">
+                        <label class="pdf-label" for="df<?= /* @noEscape */ $formId ?>_<?= /* @noEscape */ $eName ?>"><?= /* @noEscape */ $eLabel ?><?php if ($req): ?><span class="pdf-req">*</span><?php endif; ?></label>
+
+                        <?php if (in_array($type, ['text','email','phone','number','date'])): ?>
+                            <input id="df<?= /* @noEscape */ $formId ?>_<?= /* @noEscape */ $eName ?>"
+                                   type="<?= /* @noEscape */ $escaper->escapeHtmlAttr($type === 'phone' ? 'tel' : $type) ?>"
+                                   name="<?= /* @noEscape */ $eName ?>"
+                                   class="pdf-input"
+                                   placeholder="<?= /* @noEscape */ $escaper->escapeHtmlAttr($ph) ?>"
+                                   value="<?= /* @noEscape */ $escaper->escapeHtmlAttr($def) ?>"
+                                   <?php if ($req): ?>data-required="1"<?php endif; ?>
+                                   data-type="<?= /* @noEscape */ $escaper->escapeHtmlAttr($type) ?>"
+                                   data-label="<?= /* @noEscape */ $escaper->escapeHtmlAttr($label) ?>"/>
+
+                        <?php elseif ($type === 'textarea' || $type === 'wysiwyg'): ?>
+                            <textarea id="df<?= /* @noEscape */ $formId ?>_<?= /* @noEscape */ $eName ?>"
+                                      name="<?= /* @noEscape */ $eName ?>"
+                                      class="pdf-textarea"
+                                      placeholder="<?= /* @noEscape */ $escaper->escapeHtmlAttr($ph) ?>"
+                                      rows="4"
+                                      <?php if ($req): ?>data-required="1"<?php endif; ?>
+                                      data-type="<?= /* @noEscape */ $escaper->escapeHtmlAttr($type) ?>"
+                                      data-label="<?= /* @noEscape */ $escaper->escapeHtmlAttr($label) ?>"><?= /* @noEscape */ $escaper->escapeHtml($def) ?></textarea>
+
+                        <?php elseif ($type === 'select'): ?>
+                            <select id="df<?= /* @noEscape */ $formId ?>_<?= /* @noEscape */ $eName ?>" name="<?= /* @noEscape */ $eName ?>" class="pdf-select"
+                                    <?php if ($req): ?>data-required="1"<?php endif; ?> data-type="select" data-label="<?= /* @noEscape */ $escaper->escapeHtmlAttr($label) ?>">
+                                <option value=""><?= /* @noEscape */ $escaper->escapeHtml(__('-- Please Select --')) ?></option>
+                                <?php foreach ($opts as $opt):
+                                    $ov = is_array($opt) ? ($opt['value'] ?? $opt['label'] ?? '') : $opt;
+                                    $ol = is_array($opt) ? ($opt['label'] ?? $opt['value'] ?? '') : $opt; ?>
+                                <option value="<?= /* @noEscape */ $escaper->escapeHtmlAttr($ov) ?>"><?= /* @noEscape */ $escaper->escapeHtml($ol) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+
+                        <?php elseif ($type === 'multiselect'): ?>
+                            <select id="df<?= /* @noEscape */ $formId ?>_<?= /* @noEscape */ $eName ?>" name="<?= /* @noEscape */ $eName ?>[]" multiple class="pdf-select" style="min-height:100px;background-image:none"
+                                    <?php if ($req): ?>data-required="1"<?php endif; ?> data-type="multiselect" data-label="<?= /* @noEscape */ $escaper->escapeHtmlAttr($label) ?>">
+                                <?php foreach ($opts as $opt):
+                                    $ov = is_array($opt) ? ($opt['value'] ?? $opt['label'] ?? '') : $opt;
+                                    $ol = is_array($opt) ? ($opt['label'] ?? $opt['value'] ?? '') : $opt; ?>
+                                <option value="<?= /* @noEscape */ $escaper->escapeHtmlAttr($ov) ?>"><?= /* @noEscape */ $escaper->escapeHtml($ol) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+
+                        <?php elseif ($type === 'checkbox'): ?>
+                            <div class="pdf-check-group">
+                                <?php if (empty($opts)): ?>
+                                <label class="pdf-check-item"><input type="checkbox" name="<?= /* @noEscape */ $eName ?>" data-type="checkbox" <?php if ($req): ?>data-required="1"<?php endif; ?> data-label="<?= /* @noEscape */ $escaper->escapeHtmlAttr($label) ?>"/> <span><?= /* @noEscape */ $eLabel ?></span></label>
+                                <?php else: foreach ($opts as $opt):
+                                    $ov = is_array($opt) ? ($opt['value'] ?? $opt['label'] ?? '') : $opt;
+                                    $ol = is_array($opt) ? ($opt['label'] ?? $opt['value'] ?? '') : $opt; ?>
+                                <label class="pdf-check-item"><input type="checkbox" name="<?= /* @noEscape */ $eName ?>[]" value="<?= /* @noEscape */ $escaper->escapeHtmlAttr($ov) ?>" data-type="checkbox" <?php if ($req): ?>data-required="1"<?php endif; ?> data-label="<?= /* @noEscape */ $escaper->escapeHtmlAttr($label) ?>"/> <span><?= /* @noEscape */ $escaper->escapeHtml($ol) ?></span></label>
+                                <?php endforeach; endif; ?>
+                            </div>
+
+                        <?php elseif ($type === 'radio'): ?>
+                            <div class="pdf-radio-group">
+                                <?php foreach ($opts as $opt):
+                                    $ov = is_array($opt) ? ($opt['value'] ?? $opt['label'] ?? '') : $opt;
+                                    $ol = is_array($opt) ? ($opt['label'] ?? $opt['value'] ?? '') : $opt; ?>
+                                <label class="pdf-radio-item"><input type="radio" name="<?= /* @noEscape */ $eName ?>" value="<?= /* @noEscape */ $escaper->escapeHtmlAttr($ov) ?>" data-type="radio" <?php if ($req): ?>data-required="1"<?php endif; ?> data-label="<?= /* @noEscape */ $escaper->escapeHtmlAttr($label) ?>"/> <span><?= /* @noEscape */ $escaper->escapeHtml($ol) ?></span></label>
+                                <?php endforeach; ?>
+                            </div>
+
+                        <?php elseif ($type === 'file'): ?>
+                            <div class="pdf-drop" id="pdf-drop-<?= /* @noEscape */ $formId ?>-<?= /* @noEscape */ $eName ?>" data-field-name="<?= /* @noEscape */ $eName ?>">
+                                <svg class="pdf-drop-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                <p class="pdf-drop-text"><?= /* @noEscape */ $escaper->escapeHtml(__('Click to upload or drag and drop')) ?></p>
+                                <p style="font-size:11px;color:#9CA3AF;margin:4px 0 0"><?= /* @noEscape */ $escaper->escapeHtml(__('Max size: 10 MB')) ?></p>
+                                <input type="file" style="display:none" data-type="file" <?php if ($req): ?>data-required="1"<?php endif; ?> data-label="<?= /* @noEscape */ $escaper->escapeHtmlAttr($label) ?>"/>
+                                <input type="hidden" name="<?= /* @noEscape */ $eName ?>" value=""/>
+                            </div>
+                            <div class="pdf-progress" id="pdf-prog-<?= /* @noEscape */ $formId ?>-<?= /* @noEscape */ $eName ?>"><div class="pdf-progress-bar"></div></div>
+                            <div class="pdf-drop-file" id="pdf-file-<?= /* @noEscape */ $formId ?>-<?= /* @noEscape */ $eName ?>" style="display:none">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                                <span class="pdf-file-name" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+                                <button type="button" class="pdf-file-remove">&times;</button>
+                            </div>
+                        <?php endif; ?>
+
+                        <p class="pdf-err" id="pdf-err-<?= /* @noEscape */ $formId ?>-<?= /* @noEscape */ $eName ?>"></p>
+                    </div>
+                <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+
+            <button type="submit" class="pdf-btn" id="pdf-submit-<?= /* @noEscape */ $formId ?>">
+                <span class="pdf-btn-text"><?= /* @noEscape */ $btnText ?></span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<?php if ($contentBelow): ?>
+<div style="margin-top:24px"><?= /** @noEscape */ $contentBelow ?></div>
+<?php endif; ?>
+
+<?php if ($canonicalUrl):
+    $createdAt = $form->getData('created_at') ?: date('c');
+    $updatedAt = $form->getData('updated_at') ?: $createdAt;
+?>
+<script type="application/ld+json">
+<?= /* @noEscape */ json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'WebPage',
+    'name' => $form->getData('meta_title') ?: ($form->getData('title') ?: $form->getData('name')),
+    'description' => $form->getData('meta_description') ?: ($form->getData('description') ?: ''),
+    'url' => $canonicalUrl,
+    'datePublished' => date('c', strtotime($createdAt)),
+    'dateModified' => date('c', strtotime($updatedAt)),
+    'mainEntity' => ['@type' => 'ContactPage', 'name' => $form->getData('title') ?: $form->getData('name'), 'url' => $canonicalUrl],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>
+</script>
+<?php endif; ?>
+
+<script>
+(function() {
+    var fid = <?= /* @noEscape */ $formId ?>;
+    var submitUrl = '<?= /* @noEscape */ $escaper->escapeJs($submitUrl) ?>';
+    var uploadUrl = '<?= /* @noEscape */ $escaper->escapeJs($uploadUrl) ?>';
+    var successMsg = '<?= /* @noEscape */ $successMsg ?>';
+    var redirectUrl = '<?= /* @noEscape */ $escaper->escapeJs($redirectUrl) ?>';
+    var form = document.getElementById('pdf-form-' + fid);
+    if (!form) return;
+
+    // File upload zones
+    form.querySelectorAll('.pdf-drop').forEach(function(zone) {
+        var fieldName = zone.dataset.fieldName;
+        var fileInput = zone.querySelector('input[type="file"]');
+        var hiddenInput = zone.querySelector('input[type="hidden"]');
+        zone.addEventListener('click', function() { fileInput.click(); });
+        zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.style.borderColor = 'var(--color-primary, #0D9488)'; });
+        zone.addEventListener('dragleave', function(e) { e.preventDefault(); zone.style.borderColor = ''; });
+        zone.addEventListener('drop', function(e) { e.preventDefault(); zone.style.borderColor = ''; if (e.dataTransfer.files[0]) doUpload(fieldName, e.dataTransfer.files[0]); });
+        fileInput.addEventListener('change', function() { if (this.files[0]) doUpload(fieldName, this.files[0]); });
+
+        var fileDisplay = document.getElementById('pdf-file-' + fid + '-' + fieldName);
+        if (fileDisplay) {
+            fileDisplay.querySelector('.pdf-file-remove').addEventListener('click', function() {
+                fileDisplay.style.display = 'none';
+                zone.style.display = '';
+                hiddenInput.value = '';
+            });
+        }
+    });
+
+    function doUpload(fieldName, file) {
+        var zone = document.getElementById('pdf-drop-' + fid + '-' + fieldName);
+        var prog = document.getElementById('pdf-prog-' + fid + '-' + fieldName);
+        var fileDisp = document.getElementById('pdf-file-' + fid + '-' + fieldName);
+        var hidden = zone.querySelector('input[type="hidden"]');
+        var bar = prog.querySelector('.pdf-progress-bar');
+
+        prog.classList.add('active');
+        bar.style.width = '0%';
+
+        var fd = new FormData();
+        fd.append('file', file);
+        fd.append('form_key', form.querySelector('[name="form_key"]').value);
+        fd.append('field_name', fieldName);
+
+        var xhr = new XMLHttpRequest();
+        xhr.upload.onprogress = function(e) { if (e.lengthComputable) bar.style.width = Math.round(e.loaded/e.total*100)+'%'; };
+        xhr.onload = function() {
+            prog.classList.remove('active');
+            try {
+                var res = JSON.parse(xhr.responseText);
+                if (res.success !== false && (res.file || res.name)) {
+                    hidden.value = res.file || res.name;
+                    zone.style.display = 'none';
+                    fileDisp.style.display = 'flex';
+                    fileDisp.querySelector('.pdf-file-name').textContent = file.name;
+                    clearError(fieldName);
+                } else {
+                    showFieldError(fieldName, res.message || 'Upload failed.');
+                }
+            } catch(e) { showFieldError(fieldName, 'Upload failed.'); }
+        };
+        xhr.onerror = function() { prog.classList.remove('active'); showFieldError(fieldName, 'Upload failed.'); };
+        xhr.open('POST', uploadUrl);
+        xhr.send(fd);
+    }
+
+    // Validation
+    function validateField(el) {
+        var name = el.name.replace('[]','');
+        var val = el.value.trim();
+        var label = el.dataset.label || name;
+        var type = el.dataset.type || 'text';
+        var req = el.dataset.required === '1';
+
+        if (req && !val) { showFieldError(name, label + ' is required.'); return false; }
+        if (val && type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { showFieldError(name, 'Please enter a valid email.'); return false; }
+        if (val && type === 'phone' && !/^[\d\s\-+().]{7,20}$/.test(val)) { showFieldError(name, 'Please enter a valid phone number.'); return false; }
+        clearError(name);
+        return true;
+    }
+
+    function showFieldError(name, msg) {
+        var errEl = document.getElementById('pdf-err-' + fid + '-' + name);
+        var fieldEl = form.querySelector('[name="'+name+'"]') || form.querySelector('[name="'+name+'[]"]');
+        if (errEl) { errEl.textContent = msg; errEl.classList.add('visible'); }
+        if (fieldEl) fieldEl.classList.add('err');
+    }
+    function clearError(name) {
+        var errEl = document.getElementById('pdf-err-' + fid + '-' + name);
+        var fieldEl = form.querySelector('[name="'+name+'"]') || form.querySelector('[name="'+name+'[]"]');
+        if (errEl) { errEl.textContent = ''; errEl.classList.remove('visible'); }
+        if (fieldEl) fieldEl.classList.remove('err');
+    }
+
+    // Blur validation
+    form.querySelectorAll('.pdf-input,.pdf-textarea,.pdf-select').forEach(function(el) {
+        el.addEventListener('blur', function() { validateField(el); });
+        el.addEventListener('change', function() { validateField(el); });
+    });
+
+    // Submit
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var globalErr = document.getElementById('pdf-global-err-' + fid);
+        var globalErrMsg = document.getElementById('pdf-global-err-msg-' + fid);
+        globalErr.classList.remove('visible');
+
+        // Validate all
+        var valid = true;
+        form.querySelectorAll('[data-required="1"]').forEach(function(el) {
+            if (!validateField(el)) valid = false;
+        });
+        if (!valid) {
+            globalErrMsg.textContent = 'Please correct the errors below.';
+            globalErr.classList.add('visible');
+            return;
+        }
+
+        var btn = document.getElementById('pdf-submit-' + fid);
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Submitting...';
+
+        var fd = new FormData(form);
+
+        fetch(submitUrl, { method: 'POST', body: fd })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    document.getElementById('pdf-form-card-' + fid).style.display = 'none';
+                    var sc = document.getElementById('pdf-success-' + fid);
+                    sc.classList.add('visible');
+                    document.getElementById('pdf-success-msg-' + fid).textContent = data.message || successMsg;
+                    if (redirectUrl) setTimeout(function() { window.location.href = redirectUrl; }, 2000);
+                } else {
+                    if (data.errors) Object.keys(data.errors).forEach(function(k) { showFieldError(k, data.errors[k]); });
+                    globalErrMsg.textContent = data.message || 'Something went wrong.';
+                    globalErr.classList.add('visible');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span class="pdf-btn-text">' + '<?= /* @noEscape */ $escaper->escapeJs($btnText) ?>' + '</span>';
+                }
+            })
+            .catch(function() {
+                globalErrMsg.textContent = 'Network error. Please try again.';
+                globalErr.classList.add('visible');
+                btn.disabled = false;
+                btn.innerHTML = '<span class="pdf-btn-text">' + '<?= /* @noEscape */ $escaper->escapeJs($btnText) ?>' + '</span>';
+            });
+    });
+})();
+</script>

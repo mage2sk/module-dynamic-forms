@@ -1,0 +1,376 @@
+/**
+ * Panth DynamicForms - Luma Frontend CSS
+ */
+
+/* ==========================================================================
+   Variables
+   ========================================================================== */
+:root {
+    --panth-df-primary: #1979c3;
+    --panth-df-primary-hover: #156ea6;
+    --panth-df-error: #e02b27;
+    --panth-df-success-bg: #e5f7e5;
+    --panth-df-success-border: #5cb85c;
+    --panth-df-success-text: #2d662d;
+    --panth-df-error-bg: #fce4e4;
+    --panth-df-error-border: #e02b27;
+    --panth-df-error-text: #e02b27;
+    --panth-df-border: #c2c2c2;
+    --panth-df-border-focus: #1979c3;
+    --panth-df-text: #333;
+    --panth-df-text-light: #666;
+    --panth-df-bg: #fff;
+    --panth-df-radius: 3px;
+    --panth-df-gap: 15px;
+}
+
+/* ==========================================================================
+   Wrapper
+   ========================================================================== */
+.panth-df-wrapper.panth-df-luma {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* ==========================================================================
+   Title & Description
+   ========================================================================== */
+.panth-df-wrapper .panth-df-title {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--panth-df-text);
+    margin: 0 0 10px;
+    line-height: 1.3;
+}
+
+.panth-df-wrapper .panth-df-description {
+    color: var(--panth-df-text-light);
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.panth-df-wrapper .panth-df-content-above,
+.panth-df-wrapper .panth-df-content-below {
+    margin-bottom: 20px;
+}
+
+/* ==========================================================================
+   Messages
+   ========================================================================== */
+.panth-df-wrapper .panth-df-success {
+    background: var(--panth-df-success-bg);
+    border: 1px solid var(--panth-df-success-border);
+    color: var(--panth-df-success-text);
+    padding: 15px 20px;
+    border-radius: var(--panth-df-radius);
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.panth-df-wrapper .panth-df-global-error {
+    background: var(--panth-df-error-bg);
+    border: 1px solid var(--panth-df-error-border);
+    color: var(--panth-df-error-text);
+    padding: 12px 20px;
+    border-radius: var(--panth-df-radius);
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+/* ==========================================================================
+   Fields Grid
+   ========================================================================== */
+.panth-df-wrapper .panth-df-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--panth-df-gap);
+    margin: 0;
+}
+
+.panth-df-wrapper .panth-df-field {
+    box-sizing: border-box;
+    margin-bottom: 0;
+}
+
+.panth-df-wrapper .panth-df-field--full {
+    width: 100%;
+}
+
+.panth-df-wrapper .panth-df-field--half {
+    width: calc(50% - var(--panth-df-gap) / 2);
+}
+
+.panth-df-wrapper .panth-df-field--third {
+    width: calc(33.333% - var(--panth-df-gap) * 2 / 3);
+}
+
+@media (max-width: 767px) {
+    .panth-df-wrapper .panth-df-field--half,
+    .panth-df-wrapper .panth-df-field--third {
+        width: 100%;
+    }
+}
+
+/* ==========================================================================
+   Labels
+   ========================================================================== */
+.panth-df-wrapper .panth-df-field > .label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--panth-df-text);
+}
+
+.panth-df-wrapper .panth-df-field.required > .label span::after {
+    content: '*';
+    color: var(--panth-df-error);
+    margin-left: 3px;
+    font-size: 12px;
+}
+
+/* ==========================================================================
+   Inputs
+   ========================================================================== */
+.panth-df-wrapper .panth-df-field .input-text,
+.panth-df-wrapper .panth-df-field .select,
+.panth-df-wrapper .panth-df-field .multiselect {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--panth-df-border);
+    border-radius: var(--panth-df-radius);
+    font-size: 14px;
+    color: var(--panth-df-text);
+    background: var(--panth-df-bg);
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.panth-df-wrapper .panth-df-field .input-text:focus,
+.panth-df-wrapper .panth-df-field .select:focus,
+.panth-df-wrapper .panth-df-field .multiselect:focus {
+    border-color: var(--panth-df-border-focus);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(25, 121, 195, 0.15);
+}
+
+.panth-df-wrapper .panth-df-field textarea.input-text {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* ==========================================================================
+   Error State
+   ========================================================================== */
+.panth-df-wrapper .panth-df-field._error .input-text,
+.panth-df-wrapper .panth-df-field._error .select,
+.panth-df-wrapper .panth-df-field._error .multiselect {
+    border-color: var(--panth-df-error);
+}
+
+.panth-df-wrapper .panth-df-field._error .input-text:focus,
+.panth-df-wrapper .panth-df-field._error .select:focus {
+    box-shadow: 0 0 0 2px rgba(224, 43, 39, 0.15);
+}
+
+.panth-df-wrapper .panth-df-field .mage-error,
+.panth-df-wrapper .panth-df-field [data-role="field-error"] {
+    color: var(--panth-df-error);
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+/* ==========================================================================
+   Radio & Checkbox Groups
+   ========================================================================== */
+.panth-df-wrapper .panth-df-radio-group .choice,
+.panth-df-wrapper .panth-df-checkbox-group .choice {
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.panth-df-wrapper .panth-df-radio-group .choice .label,
+.panth-df-wrapper .panth-df-checkbox-group .choice .label {
+    font-weight: 400;
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+.panth-df-wrapper .choice .radio,
+.panth-df-wrapper .choice .checkbox {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+}
+
+/* ==========================================================================
+   File Upload
+   ========================================================================== */
+.panth-df-wrapper .panth-df-dropzone {
+    border: 2px dashed var(--panth-df-border);
+    border-radius: var(--panth-df-radius);
+    padding: 25px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.panth-df-wrapper .panth-df-dropzone:hover,
+.panth-df-wrapper .panth-df-dropzone.panth-df-dropzone--active {
+    border-color: var(--panth-df-primary);
+    background-color: #f0f7fd;
+}
+
+.panth-df-wrapper .panth-df-dropzone-content p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: var(--panth-df-text-light);
+}
+
+.panth-df-wrapper .panth-df-upload-icon::before {
+    content: '\2191';
+    display: block;
+    font-size: 28px;
+    color: #999;
+    margin-bottom: 5px;
+}
+
+.panth-df-wrapper .panth-df-progress-bar {
+    width: 200px;
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    margin: 10px auto;
+    overflow: hidden;
+}
+
+.panth-df-wrapper .panth-df-progress-fill {
+    height: 100%;
+    background: var(--panth-df-primary);
+    border-radius: 3px;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+.panth-df-wrapper .panth-df-uploaded-file {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.panth-df-wrapper .panth-df-file-preview img {
+    max-width: 50px;
+    max-height: 50px;
+    border-radius: 3px;
+}
+
+.panth-df-wrapper .panth-df-file-icon {
+    font-size: 30px;
+}
+
+.panth-df-wrapper .panth-df-file-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--panth-df-text);
+}
+
+.panth-df-wrapper .panth-df-file-remove {
+    font-size: 12px;
+    color: var(--panth-df-error);
+    text-decoration: underline;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.panth-df-wrapper .panth-df-file-remove:hover {
+    color: #b71c1c;
+}
+
+/* ==========================================================================
+   WYSIWYG Editor
+   ========================================================================== */
+.panth-df-wrapper .panth-df-wysiwyg-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 5px;
+    background: #f5f5f5;
+    border: 1px solid var(--panth-df-border);
+    border-bottom: none;
+    border-radius: var(--panth-df-radius) var(--panth-df-radius) 0 0;
+}
+
+.panth-df-wrapper .panth-df-wysiwyg-btn {
+    padding: 4px 8px;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--panth-df-text);
+}
+
+.panth-df-wrapper .panth-df-wysiwyg-btn:hover {
+    background: #e0e0e0;
+    border-color: #ccc;
+}
+
+.panth-df-wrapper .panth-df-wysiwyg-separator {
+    width: 1px;
+    background: #ccc;
+    margin: 2px 4px;
+}
+
+.panth-df-wrapper .panth-df-wysiwyg-editor {
+    border: 1px solid var(--panth-df-border);
+    border-radius: 0 0 var(--panth-df-radius) var(--panth-df-radius);
+    padding: 10px 12px;
+    min-height: 120px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--panth-df-text);
+    overflow-y: auto;
+    outline: none;
+}
+
+.panth-df-wrapper .panth-df-wysiwyg-editor:focus {
+    border-color: var(--panth-df-border-focus);
+    box-shadow: 0 0 0 2px rgba(25, 121, 195, 0.15);
+}
+
+/* ==========================================================================
+   Submit Button
+   ========================================================================== */
+.panth-df-wrapper .panth-df-actions {
+    margin-top: 20px;
+}
+
+.panth-df-wrapper .panth-df-actions .action.submit {
+    min-width: 160px;
+    position: relative;
+}
+
+.panth-df-wrapper .panth-df-actions .action.submit[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Note/Help Text
+   ========================================================================== */
+.panth-df-wrapper .note {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+}

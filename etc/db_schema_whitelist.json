@@ -1,0 +1,112 @@
+{
+    "panth_dynamic_form": {
+        "column": {
+            "form_id": true,
+            "name": true,
+            "form_type": true,
+            "url_key": true,
+            "title": true,
+            "description": true,
+            "content_above": true,
+            "content_below": true,
+            "success_message": true,
+            "submit_button_text": true,
+            "redirect_url": true,
+            "admin_email": true,
+            "admin_email_cc": true,
+            "admin_email_bcc": true,
+            "auto_reply_enabled": true,
+            "auto_reply_subject": true,
+            "auto_reply_body": true,
+            "form_style": true,
+            "is_active": true,
+            "store_id": true,
+            "created_at": true,
+            "updated_at": true,
+            "meta_title": true,
+            "meta_description": true,
+            "meta_keywords": true,
+            "meta_robots": true
+        },
+        "index": {
+            "PANTH_DYNAMIC_FORM_IS_ACTIVE": true,
+            "PANTH_DYNAMIC_FORM_STORE_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "PANTH_DYNAMIC_FORM_URL_KEY": true
+        }
+    },
+    "panth_dynamic_form_field": {
+        "column": {
+            "field_id": true,
+            "form_id": true,
+            "field_type": true,
+            "label": true,
+            "name": true,
+            "placeholder": true,
+            "default_value": true,
+            "options": true,
+            "validation_rules": true,
+            "is_required": true,
+            "css_class": true,
+            "width": true,
+            "sort_order": true,
+            "is_active": true
+        },
+        "index": {
+            "PANTH_DYNAMIC_FORM_FIELD_FORM_ID": true,
+            "PANTH_DYNAMIC_FORM_FIELD_SORT_ORDER": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "PANTH_DYN_FORM_FIELD_FORM_ID_PANTH_DYN_FORM_FORM_ID": true,
+            "PANTH_DYNAMIC_FORM_FIELD_FORM_ID_PANTH_DYNAMIC_FORM_FORM_ID": true
+        }
+    },
+    "panth_dynamic_form_submission": {
+        "column": {
+            "submission_id": true,
+            "form_id": true,
+            "customer_id": true,
+            "customer_email": true,
+            "customer_name": true,
+            "customer_ip": true,
+            "store_id": true,
+            "status": true,
+            "admin_notes": true,
+            "created_at": true
+        },
+        "index": {
+            "PANTH_DYNAMIC_FORM_SUBMISSION_FORM_ID": true,
+            "PANTH_DYNAMIC_FORM_SUBMISSION_STATUS": true,
+            "PANTH_DYNAMIC_FORM_SUBMISSION_STORE_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "PANTH_DYN_FORM_SUBMISSION_FORM_ID_PANTH_DYN_FORM_FORM_ID": true,
+            "PANTH_DYNAMIC_FORM_SUBMISSION_FORM_ID_PANTH_DYNAMIC_FORM_FORM_ID": true
+        }
+    },
+    "panth_dynamic_form_submission_value": {
+        "column": {
+            "value_id": true,
+            "submission_id": true,
+            "field_id": true,
+            "field_label": true,
+            "field_type": true,
+            "value": true
+        },
+        "index": {
+            "PANTH_DYNAMIC_FORM_SUBMISSION_VALUE_SUBMISSION_ID": true,
+            "PANTH_DYNAMIC_FORM_SUBMISSION_VALUE_FIELD_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "PANTH_DYN_FORM_SUB_VAL_SUB_ID_PANTH_DYN_FORM_SUB_SUB_ID": true,
+            "PANTH_DYN_FORM_SUB_VAL_FIELD_ID_PANTH_DYN_FORM_FIELD_FIELD_ID": true,
+            "FK_4D4F0F37DE204A4182D84A575B7E6116": true,
+            "FK_5966B4E81BD22E79449CA500315997B5": true
+        }
+    }
+}

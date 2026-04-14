@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="panth" translate="label" sortOrder="400">
+            <label>Panth Extensions</label>
+        </tab>
+
+        <section id="panth_dynamicforms" translate="label" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Dynamic Forms</label>
+            <tab>panth</tab>
+            <resource>Panth_DynamicForms::config</resource>
+
+            <!-- General Settings -->
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General Settings</label>
+
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Dynamic Forms</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Enable or disable the Dynamic Forms module.</comment>
+                </field>
+
+                <field id="recaptcha_enabled" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable reCAPTCHA</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Enable Google reCAPTCHA v3 for form submissions.</comment>
+                </field>
+
+                <field id="recaptcha_site_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>reCAPTCHA Site Key</label>
+                    <depends>
+                        <field id="recaptcha_enabled">1</field>
+                    </depends>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="recaptcha_secret_key" translate="label" type="password" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>reCAPTCHA Secret Key</label>
+                    <depends>
+                        <field id="recaptcha_enabled">1</field>
+                    </depends>
+                    <validate>required-entry</validate>
+                </field>
+
+                <field id="allowed_file_extensions" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed File Extensions</label>
+                    <comment>Comma-separated list of allowed file extensions for file upload fields.</comment>
+                </field>
+
+                <field id="max_file_size" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max File Size (MB)</label>
+                    <comment>Maximum file size allowed for uploads in megabytes.</comment>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                </field>
+
+                <field id="upload_dir" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Upload Directory</label>
+                    <comment>Relative path from media directory for file uploads.</comment>
+                </field>
+            </group>
+
+            <!-- Email Settings -->
+            <group id="email" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Email Settings</label>
+
+                <field id="admin_email_template" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Admin Notification Template</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+
+                <field id="admin_email_sender" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Admin Notification Sender</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Identity</source_model>
+                </field>
+
+                <field id="autoreply_email_template" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Auto-Reply Template</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+
+                <field id="autoreply_email_sender" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Auto-Reply Sender</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Identity</source_model>
+                </field>
+            </group>
+
+            <!-- Display Settings -->
+            <group id="display" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Display Settings</label>
+
+                <field id="form_layout" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Form Layout</label>
+                    <source_model>Panth\DynamicForms\Model\Config\Source\FormLayout</source_model>
+                </field>
+
+                <field id="show_form_title" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show Form Title</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="show_form_description" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show Form Description</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="ajax_submit" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Use AJAX Submission</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Submit forms without full page reload.</comment>
+                </field>
+
+                <field id="loading_text" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Loading Button Text</label>
+                    <comment>Text shown on submit button while form is being submitted.</comment>
+                </field>
+            </group>
+
+            <!-- Styling -->
+            <group id="styling" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Styling</label>
+
+                <field id="use_theme_config" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Use Theme Config Colors</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When enabled, colors from theme-config.json will be used instead of the values below.</comment>
+                </field>
+
+                <field id="primary_color" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Primary Color</label>
+                    <validate>color</validate>
+                    <depends>
+                        <field id="use_theme_config">0</field>
+                    </depends>
+                </field>
+
+                <field id="error_color" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Error Color</label>
+                    <validate>color</validate>
+                    <depends>
+                        <field id="use_theme_config">0</field>
+                    </depends>
+                </field>
+
+                <field id="success_color" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Success Color</label>
+                    <validate>color</validate>
+                    <depends>
+                        <field id="use_theme_config">0</field>
+                    </depends>
+                </field>
+
+                <field id="border_radius" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Input Border Radius</label>
+                    <comment>CSS border radius value (e.g., 8px, 4px, 0).</comment>
+                    <depends>
+                        <field id="use_theme_config">0</field>
+                    </depends>
+                </field>
+
+                <field id="custom_css" translate="label comment" type="textarea" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom CSS</label>
+                    <comment>Additional CSS styles applied to all dynamic forms.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

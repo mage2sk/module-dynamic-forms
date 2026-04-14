@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">panth_dynamicforms_form_form.panth_dynamicforms_form_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Form Information</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+
+    <settings>
+        <buttons>
+            <button name="back" class="Panth\DynamicForms\Block\Adminhtml\Form\BackButton"/>
+            <button name="view_page" class="Panth\DynamicForms\Block\Adminhtml\Form\ViewPageButton"/>
+            <button name="delete" class="Panth\DynamicForms\Block\Adminhtml\Form\DeleteButton"/>
+            <button name="save" class="Panth\DynamicForms\Block\Adminhtml\Form\SaveButton"/>
+            <button name="save_and_continue" class="Panth\DynamicForms\Block\Adminhtml\Form\SaveAndContinueButton"/>
+        </buttons>
+        <namespace>panth_dynamicforms_form_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>panth_dynamicforms_form_form.panth_dynamicforms_form_form_data_source</dep>
+        </deps>
+    </settings>
+
+    <dataSource name="panth_dynamicforms_form_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <submitUrl path="panth_dynamicforms/form/save"/>
+        </settings>
+        <dataProvider class="Panth\DynamicForms\Ui\DataProvider\FormDataProvider"
+                      name="panth_dynamicforms_form_form_data_source">
+            <settings>
+                <requestFieldName>form_id</requestFieldName>
+                <primaryFieldName>form_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+
+    <!-- General Fieldset -->
+    <fieldset name="general" sortOrder="10">
+        <settings>
+            <collapsible>false</collapsible>
+            <label translate="true">General</label>
+        </settings>
+
+        <field name="form_id" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <visible>false</visible>
+            </settings>
+        </field>
+
+        <field name="name" formElement="input" sortOrder="10">
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Form Name (Admin)</label>
+                <notice translate="true">Internal name used in the admin panel.</notice>
+            </settings>
+        </field>
+
+        <field name="form_type" formElement="select" sortOrder="15">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">page</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Form Usage</label>
+                <notice translate="true">Choose how this form will be used. "Standalone Page" creates a dedicated URL. "Widget Only" lets you embed the form via Widget on any CMS page or block.</notice>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options>
+                            <option name="page" xsi:type="array">
+                                <item name="value" xsi:type="string">page</item>
+                                <item name="label" xsi:type="string" translate="true">Standalone Page (has its own URL)</item>
+                            </option>
+                            <option name="widget" xsi:type="array">
+                                <item name="value" xsi:type="string">widget</item>
+                                <item name="label" xsi:type="string" translate="true">Widget Only (embed on CMS pages/blocks)</item>
+                            </option>
+                            <option name="both" xsi:type="array">
+                                <item name="value" xsi:type="string">both</item>
+                                <item name="label" xsi:type="string" translate="true">Both (standalone page + widget)</item>
+                            </option>
+                        </options>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+
+        <field name="url_key" formElement="input" sortOrder="20">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">URL Key</label>
+                <notice translate="true">The URL path for this form page (e.g., "contact-us"). Accessible at /pages/contact-us</notice>
+            </settings>
+        </field>
+
+        <field name="widget_usage_info" formElement="input" sortOrder="25">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="componentType" xsi:type="string">field</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="elementTmpl" xsi:type="string">ui/form/element/text</item>
+                    <item name="visible" xsi:type="boolean">true</item>
+                    <item name="disabled" xsi:type="boolean">true</item>
+                    <item name="notice" xsi:type="string" translate="true">How to embed this form as a widget:
+
+Step 1: Go to Content > Pages (or Content > Blocks) and edit the page/block where you want the form.
+Step 2: In the Page Builder or WYSIWYG editor, click "Insert Widget".
+Step 3: Select "Dynamic Form" as the Widget Type.
+Step 4: Choose this form from the "Select Form" dropdown.
+Step 5: Save the page. The form will render automatically on the frontend.
+
+For advanced usage, you can also paste this widget code directly:
+{{widget type="Panth\DynamicForms\Block\Widget\DynamicForm" form_id="FORM_ID" show_title="1" show_description="1"}}
+(Replace FORM_ID with the actual Form ID shown above after saving.)</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">How to Use as Widget</label>
+                <visible>true</visible>
+            </settings>
+        </field>
+
+        <field name="title" formElement="input" sortOrder="30">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Frontend Title</label>
+                <notice translate="true">Title displayed to customers on the frontend.</notice>
+            </settings>
+        </field>
+
+        <field name="description" formElement="textarea" sortOrder="40">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Description</label>
+                <notice translate="true">Optional description shown below the title on the frontend.</notice>
+            </settings>
+        </field>
+
+        <field name="is_active" formElement="checkbox" sortOrder="50">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">1</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Active</label>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+
+        <field name="store_id" formElement="input" sortOrder="60">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Store ID</label>
+                <notice translate="true">Store ID (0 = All Store Views).</notice>
+            </settings>
+        </field>
+    </fieldset>
+
+    <!-- Content Fieldset -->
+    <fieldset name="content" sortOrder="20">
+        <settings>
+            <collapsible>true</collapsible>
+            <label translate="true">Content</label>
+        </settings>
+
+        <field name="content_above" formElement="wysiwyg" sortOrder="10">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="wysiwygConfigData" xsi:type="array">
+                        <item name="height" xsi:type="string">200px</item>
+                        <item name="add_variables" xsi:type="boolean">false</item>
+                        <item name="add_widgets" xsi:type="boolean">true</item>
+                        <item name="add_images" xsi:type="boolean">true</item>
+                        <item name="add_directives" xsi:type="boolean">true</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Content Above Form</label>
+                <notice translate="true">HTML/CMS content displayed above the form fields.</notice>
+            </settings>
+        </field>
+
+        <field name="content_below" formElement="wysiwyg" sortOrder="20">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="wysiwygConfigData" xsi:type="array">
+                        <item name="height" xsi:type="string">200px</item>
+                        <item name="add_variables" xsi:type="boolean">false</item>
+                        <item name="add_widgets" xsi:type="boolean">true</item>
+                        <item name="add_images" xsi:type="boolean">true</item>
+                        <item name="add_directives" xsi:type="boolean">true</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Content Below Form</label>
+                <notice translate="true">HTML/CMS content displayed below the form fields.</notice>
+            </settings>
+        </field>
+    </fieldset>
+
+    <!-- Form Settings Fieldset -->
+    <fieldset name="form_settings" sortOrder="30">
+        <settings>
+            <collapsible>true</collapsible>
+            <label translate="true">Form Settings</label>
+        </settings>
+
+        <field name="submit_button_text" formElement="input" sortOrder="10">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">Submit</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Submit Button Text</label>
+            </settings>
+        </field>
+
+        <field name="success_message" formElement="textarea" sortOrder="20">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Success Message</label>
+                <notice translate="true">Message shown after successful form submission.</notice>
+            </settings>
+        </field>
+
+        <field name="redirect_url" formElement="input" sortOrder="30">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Redirect URL</label>
+                <notice translate="true">Optional URL to redirect to after submission. Leave empty to stay on the form page.</notice>
+            </settings>
+        </field>
+    </fieldset>
+
+    <!-- Email Settings Fieldset -->
+    <fieldset name="email_settings" sortOrder="40">
+        <settings>
+            <collapsible>true</collapsible>
+            <label translate="true">Email Settings</label>
+        </settings>
+
+        <field name="admin_email" formElement="input" sortOrder="10">
+            <settings>
+                <validation>
+                    <rule name="validate-email" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Admin Notification Email</label>
+                <notice translate="true">Email address that receives form submission notifications.</notice>
+            </settings>
+        </field>
+
+        <field name="admin_email_cc" formElement="input" sortOrder="20">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Admin Email CC</label>
+                <notice translate="true">CC email address for notifications.</notice>
+            </settings>
+        </field>
+
+        <field name="admin_email_bcc" formElement="input" sortOrder="30">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Admin Email BCC</label>
+                <notice translate="true">BCC email address for notifications.</notice>
+            </settings>
+        </field>
+
+        <field name="auto_reply_enabled" formElement="checkbox" sortOrder="40">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Enable Auto Reply</label>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+
+        <field name="auto_reply_subject" formElement="input" sortOrder="50">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Auto Reply Subject</label>
+            </settings>
+        </field>
+
+        <field name="auto_reply_body" formElement="textarea" sortOrder="60">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Auto Reply Body</label>
+                <notice translate="true">The body of the auto-reply email sent to the customer.</notice>
+            </settings>
+        </field>
+    </fieldset>
+
+    <!-- SEO Fieldset -->
+    <fieldset name="seo" sortOrder="45">
+        <settings>
+            <collapsible>true</collapsible>
+            <label translate="true">SEO</label>
+        </settings>
+
+        <field name="meta_title" formElement="input" sortOrder="10">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Meta Title</label>
+                <notice translate="true">Page title for search engines. Falls back to the frontend title if empty.</notice>
+            </settings>
+        </field>
+
+        <field name="meta_description" formElement="textarea" sortOrder="20">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Meta Description</label>
+                <notice translate="true">Meta description for search engines.</notice>
+            </settings>
+        </field>
+
+        <field name="meta_keywords" formElement="textarea" sortOrder="30">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Meta Keywords</label>
+                <notice translate="true">Comma-separated meta keywords.</notice>
+            </settings>
+        </field>
+
+        <field name="meta_robots" formElement="select" sortOrder="40">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">index,follow</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Meta Robots</label>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options>
+                            <option name="index_follow" xsi:type="array">
+                                <item name="value" xsi:type="string">index,follow</item>
+                                <item name="label" xsi:type="string" translate="true">index,follow</item>
+                            </option>
+                            <option name="noindex_follow" xsi:type="array">
+                                <item name="value" xsi:type="string">noindex,follow</item>
+                                <item name="label" xsi:type="string" translate="true">noindex,follow</item>
+                            </option>
+                            <option name="index_nofollow" xsi:type="array">
+                                <item name="value" xsi:type="string">index,nofollow</item>
+                                <item name="label" xsi:type="string" translate="true">index,nofollow</item>
+                            </option>
+                            <option name="noindex_nofollow" xsi:type="array">
+                                <item name="value" xsi:type="string">noindex,nofollow</item>
+                                <item name="label" xsi:type="string" translate="true">noindex,nofollow</item>
+                            </option>
+                        </options>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+    </fieldset>
+
+    <!-- Styling Fieldset -->
+    <fieldset name="styling" sortOrder="50">
+        <settings>
+            <collapsible>true</collapsible>
+            <label translate="true">Styling</label>
+        </settings>
+
+        <field name="form_style" formElement="textarea" sortOrder="10">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Form Style (JSON)</label>
+                <notice translate="true">JSON object for custom form styling. Example: {"background": "#fff", "padding": "20px"}</notice>
+            </settings>
+        </field>
+    </fieldset>
+
+    <!-- Form Fields Fieldset (placeholder for custom JS builder) -->
+    <fieldset name="form_fields" sortOrder="60">
+        <settings>
+            <collapsible>true</collapsible>
+            <opened>true</opened>
+            <label translate="true">Form Fields</label>
+        </settings>
+
+        <field name="fields_json" formElement="hidden">
+            <settings>
+                <dataType>text</dataType>
+            </settings>
+        </field>
+
+        <field name="fields_note" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="notice" xsi:type="string" translate="true">Fields are managed via the dynamic field builder below this form.</item>
+                    <item name="visible" xsi:type="boolean">true</item>
+                    <item name="disabled" xsi:type="boolean">true</item>
+                    <item name="componentType" xsi:type="string">field</item>
+                    <item name="formElement" xsi:type="string">input</item>
+                    <item name="elementTmpl" xsi:type="string">ui/form/element/text</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Form Fields</label>
+                <visible>true</visible>
+            </settings>
+        </field>
+    </fieldset>
+</form>

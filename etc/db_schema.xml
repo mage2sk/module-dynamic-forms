@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+
+    <!-- Form Table -->
+    <table name="panth_dynamic_form" resource="default" engine="innodb" comment="Dynamic Forms">
+        <column xsi:type="int" name="form_id" unsigned="true" nullable="false" identity="true" comment="Form ID"/>
+        <column xsi:type="varchar" name="name" nullable="false" length="255" comment="Admin Name"/>
+        <column xsi:type="varchar" name="form_type" nullable="false" length="20" default="page" comment="Form Type: page or widget"/>
+        <column xsi:type="varchar" name="url_key" nullable="true" length="255" comment="URL Key"/>
+        <column xsi:type="varchar" name="title" nullable="true" length="255" comment="Frontend Title"/>
+        <column xsi:type="text" name="description" nullable="true" comment="Form Description"/>
+        <column xsi:type="mediumtext" name="content_above" nullable="true" comment="CMS Content Above Form"/>
+        <column xsi:type="mediumtext" name="content_below" nullable="true" comment="CMS Content Below Form"/>
+        <column xsi:type="text" name="success_message" nullable="true" comment="Success Message"/>
+        <column xsi:type="varchar" name="submit_button_text" nullable="true" length="255" default="Submit" comment="Submit Button Text"/>
+        <column xsi:type="varchar" name="redirect_url" nullable="true" length="512" comment="Redirect URL After Submit"/>
+        <column xsi:type="varchar" name="admin_email" nullable="true" length="255" comment="Admin Notification Email"/>
+        <column xsi:type="varchar" name="admin_email_cc" nullable="true" length="255" comment="Admin Email CC"/>
+        <column xsi:type="varchar" name="admin_email_bcc" nullable="true" length="255" comment="Admin Email BCC"/>
+        <column xsi:type="smallint" name="auto_reply_enabled" unsigned="true" nullable="false" default="0" comment="Auto Reply Enabled"/>
+        <column xsi:type="varchar" name="auto_reply_subject" nullable="true" length="255" comment="Auto Reply Subject"/>
+        <column xsi:type="text" name="auto_reply_body" nullable="true" comment="Auto Reply Body"/>
+        <column xsi:type="text" name="form_style" nullable="true" comment="Form Style JSON"/>
+        <column xsi:type="smallint" name="is_active" unsigned="true" nullable="false" default="1" comment="Is Active"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" default="0" comment="Store ID"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At"/>
+        <column xsi:type="varchar" name="meta_title" nullable="true" length="255" comment="Meta Title"/>
+        <column xsi:type="text" name="meta_description" nullable="true" comment="Meta Description"/>
+        <column xsi:type="text" name="meta_keywords" nullable="true" comment="Meta Keywords"/>
+        <column xsi:type="varchar" name="meta_robots" nullable="true" length="50" default="index,follow" comment="Meta Robots"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="form_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="PANTH_DYNAMIC_FORM_URL_KEY">
+            <column name="url_key"/>
+        </constraint>
+        <index referenceId="PANTH_DYNAMIC_FORM_IS_ACTIVE" indexType="btree">
+            <column name="is_active"/>
+        </index>
+        <index referenceId="PANTH_DYNAMIC_FORM_STORE_ID" indexType="btree">
+            <column name="store_id"/>
+        </index>
+    </table>
+
+    <!-- Form Field Table -->
+    <table name="panth_dynamic_form_field" resource="default" engine="innodb" comment="Dynamic Form Fields">
+        <column xsi:type="int" name="field_id" unsigned="true" nullable="false" identity="true" comment="Field ID"/>
+        <column xsi:type="int" name="form_id" unsigned="true" nullable="false" comment="Form ID"/>
+        <column xsi:type="varchar" name="field_type" nullable="false" length="50" comment="Field Type"/>
+        <column xsi:type="varchar" name="label" nullable="false" length="255" comment="Field Label"/>
+        <column xsi:type="varchar" name="name" nullable="false" length="255" comment="Field Name Attribute"/>
+        <column xsi:type="varchar" name="placeholder" nullable="true" length="255" comment="Placeholder Text"/>
+        <column xsi:type="text" name="default_value" nullable="true" comment="Default Value"/>
+        <column xsi:type="text" name="options" nullable="true" comment="Options JSON"/>
+        <column xsi:type="text" name="validation_rules" nullable="true" comment="Validation Rules JSON"/>
+        <column xsi:type="smallint" name="is_required" unsigned="true" nullable="false" default="0" comment="Is Required"/>
+        <column xsi:type="varchar" name="css_class" nullable="true" length="255" comment="CSS Class"/>
+        <column xsi:type="varchar" name="width" nullable="true" length="20" default="full" comment="Field Width"/>
+        <column xsi:type="int" name="sort_order" unsigned="true" nullable="false" default="0" comment="Sort Order"/>
+        <column xsi:type="smallint" name="is_active" unsigned="true" nullable="false" default="1" comment="Is Active"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="field_id"/>
+        </constraint>
+        <constraint xsi:type="foreign"
+                    referenceId="PANTH_DYN_FORM_FIELD_FORM_ID_PANTH_DYN_FORM_FORM_ID"
+                    table="panth_dynamic_form_field"
+                    column="form_id"
+                    referenceTable="panth_dynamic_form"
+                    referenceColumn="form_id"
+                    onDelete="CASCADE"/>
+        <index referenceId="PANTH_DYNAMIC_FORM_FIELD_FORM_ID" indexType="btree">
+            <column name="form_id"/>
+        </index>
+        <index referenceId="PANTH_DYNAMIC_FORM_FIELD_SORT_ORDER" indexType="btree">
+            <column name="sort_order"/>
+        </index>
+    </table>
+
+    <!-- Submission Table -->
+    <table name="panth_dynamic_form_submission" resource="default" engine="innodb" comment="Dynamic Form Submissions">
+        <column xsi:type="int" name="submission_id" unsigned="true" nullable="false" identity="true" comment="Submission ID"/>
+        <column xsi:type="int" name="form_id" unsigned="true" nullable="false" comment="Form ID"/>
+        <column xsi:type="int" name="customer_id" unsigned="true" nullable="true" comment="Customer ID"/>
+        <column xsi:type="varchar" name="customer_email" nullable="true" length="255" comment="Customer Email"/>
+        <column xsi:type="varchar" name="customer_name" nullable="true" length="255" comment="Customer Name"/>
+        <column xsi:type="varchar" name="customer_ip" nullable="true" length="45" comment="Customer IP"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" default="0" comment="Store ID"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="20" default="new" comment="Submission Status"/>
+        <column xsi:type="text" name="admin_notes" nullable="true" comment="Admin Notes"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="submission_id"/>
+        </constraint>
+        <constraint xsi:type="foreign"
+                    referenceId="PANTH_DYN_FORM_SUBMISSION_FORM_ID_PANTH_DYN_FORM_FORM_ID"
+                    table="panth_dynamic_form_submission"
+                    column="form_id"
+                    referenceTable="panth_dynamic_form"
+                    referenceColumn="form_id"
+                    onDelete="CASCADE"/>
+        <index referenceId="PANTH_DYNAMIC_FORM_SUBMISSION_FORM_ID" indexType="btree">
+            <column name="form_id"/>
+        </index>
+        <index referenceId="PANTH_DYNAMIC_FORM_SUBMISSION_STATUS" indexType="btree">
+            <column name="status"/>
+        </index>
+        <index referenceId="PANTH_DYNAMIC_FORM_SUBMISSION_STORE_ID" indexType="btree">
+            <column name="store_id"/>
+        </index>
+    </table>
+
+    <!-- Submission Value Table -->
+    <table name="panth_dynamic_form_submission_value" resource="default" engine="innodb" comment="Dynamic Form Submission Values">
+        <column xsi:type="int" name="value_id" unsigned="true" nullable="false" identity="true" comment="Value ID"/>
+        <column xsi:type="int" name="submission_id" unsigned="true" nullable="false" comment="Submission ID"/>
+        <column xsi:type="int" name="field_id" unsigned="true" nullable="false" comment="Field ID"/>
+        <column xsi:type="varchar" name="field_label" nullable="true" length="255" comment="Field Label Snapshot"/>
+        <column xsi:type="varchar" name="field_type" nullable="true" length="50" comment="Field Type"/>
+        <column xsi:type="mediumtext" name="value" nullable="true" comment="Field Value"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="value_id"/>
+        </constraint>
+        <constraint xsi:type="foreign"
+                    referenceId="PANTH_DYN_FORM_SUB_VAL_SUB_ID_PANTH_DYN_FORM_SUB_SUB_ID"
+                    table="panth_dynamic_form_submission_value"
+                    column="submission_id"
+                    referenceTable="panth_dynamic_form_submission"
+                    referenceColumn="submission_id"
+                    onDelete="CASCADE"/>
+        <constraint xsi:type="foreign"
+                    referenceId="PANTH_DYN_FORM_SUB_VAL_FIELD_ID_PANTH_DYN_FORM_FIELD_FIELD_ID"
+                    table="panth_dynamic_form_submission_value"
+                    column="field_id"
+                    referenceTable="panth_dynamic_form_field"
+                    referenceColumn="field_id"
+                    onDelete="CASCADE"/>
+        <index referenceId="PANTH_DYNAMIC_FORM_SUBMISSION_VALUE_SUBMISSION_ID" indexType="btree">
+            <column name="submission_id"/>
+        </index>
+        <index referenceId="PANTH_DYNAMIC_FORM_SUBMISSION_VALUE_FIELD_ID" indexType="btree">
+            <column name="field_id"/>
+        </index>
+    </table>
+</schema>

@@ -1,0 +1,115 @@
+<!--@subject New Form Submission: {{var form_name}} @-->
+<!--@vars
+{"var form_name":"Form Name",
+"var submission_date":"Submission Date",
+"var customer_name":"Customer Name",
+"var customer_email":"Customer Email",
+"var customer_ip":"Customer IP Address",
+"var store_name":"Store Name",
+"var submission_fields":"Submission Fields HTML"}
+@-->
+
+{{template config_path="design/email/header_template"}}
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+        <td style="padding: 20px 0;">
+            <h1 style="font-size: 22px; font-weight: 700; color: #1F2937; margin: 0 0 8px;">
+                {{trans "New Form Submission"}}
+            </h1>
+            <p style="font-size: 14px; color: #6B7280; margin: 0;">
+                {{trans "A new submission has been received for the form:"}} <strong>{{var form_name}}</strong>
+            </p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px;">
+                <tr>
+                    <td style="padding: 16px 20px;">
+                        <h2 style="font-size: 16px; font-weight: 600; color: #374151; margin: 0 0 12px;">
+                            {{trans "Submission Details"}}
+                        </h2>
+                        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                            <tr>
+                                <td style="padding: 6px 0; font-size: 14px; color: #6B7280; width: 140px; vertical-align: top;">
+                                    {{trans "Form:"}}
+                                </td>
+                                <td style="padding: 6px 0; font-size: 14px; color: #1F2937; font-weight: 500;">
+                                    {{var form_name}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 0; font-size: 14px; color: #6B7280; width: 140px; vertical-align: top;">
+                                    {{trans "Date:"}}
+                                </td>
+                                <td style="padding: 6px 0; font-size: 14px; color: #1F2937;">
+                                    {{var submission_date}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 0; font-size: 14px; color: #6B7280; width: 140px; vertical-align: top;">
+                                    {{trans "Customer Name:"}}
+                                </td>
+                                <td style="padding: 6px 0; font-size: 14px; color: #1F2937;">
+                                    {{var customer_name}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 0; font-size: 14px; color: #6B7280; width: 140px; vertical-align: top;">
+                                    {{trans "Customer Email:"}}
+                                </td>
+                                <td style="padding: 6px 0; font-size: 14px; color: #1F2937;">
+                                    {{var customer_email}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 0; font-size: 14px; color: #6B7280; width: 140px; vertical-align: top;">
+                                    {{trans "IP Address:"}}
+                                </td>
+                                <td style="padding: 6px 0; font-size: 14px; color: #1F2937;">
+                                    {{var customer_ip}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 0; font-size: 14px; color: #6B7280; width: 140px; vertical-align: top;">
+                                    {{trans "Store:"}}
+                                </td>
+                                <td style="padding: 6px 0; font-size: 14px; color: #1F2937;">
+                                    {{var store_name}}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 20px 0 0;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border: 1px solid #E5E7EB; border-radius: 8px;">
+                <tr>
+                    <td style="padding: 16px 20px; background-color: #0D9488; border-radius: 8px 8px 0 0;">
+                        <h2 style="font-size: 16px; font-weight: 600; color: #FFFFFF; margin: 0;">
+                            {{trans "Submitted Fields"}}
+                        </h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 16px 20px;">
+                        {{var submission_fields|raw}}
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 20px 0 0;">
+            <p style="font-size: 13px; color: #9CA3AF; margin: 0;">
+                {{trans "This is an automated notification from the Dynamic Forms module."}}
+            </p>
+        </td>
+    </tr>
+</table>
+
+{{template config_path="design/email/footer_template"}}

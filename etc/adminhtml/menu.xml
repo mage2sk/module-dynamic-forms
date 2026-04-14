@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Panth_DynamicForms::group"
+             title="Dynamic Forms"
+             module="Panth_DynamicForms"
+             sortOrder="30"
+             parent="Panth_Core::panth_extensions"
+             resource="Panth_DynamicForms::main"/>
+        <add id="Panth_DynamicForms::form"
+             title="Manage Forms"
+             module="Panth_DynamicForms"
+             sortOrder="10"
+             parent="Panth_DynamicForms::group"
+             action="panth_dynamicforms/form/index"
+             resource="Panth_DynamicForms::form"/>
+        <add id="Panth_DynamicForms::submission"
+             title="Form Submissions"
+             module="Panth_DynamicForms"
+             sortOrder="20"
+             parent="Panth_DynamicForms::group"
+             action="panth_dynamicforms/submission/index"
+             resource="Panth_DynamicForms::submission"/>
+        <add id="Panth_DynamicForms::config"
+             title="Configuration"
+             module="Panth_DynamicForms"
+             sortOrder="30"
+             parent="Panth_DynamicForms::group"
+             action="adminhtml/system_config/edit/section/panth_dynamicforms"
+             resource="Panth_DynamicForms::config"/>
+    </menu>
+</config>

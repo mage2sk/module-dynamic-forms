@@ -1,0 +1,252 @@
+<?php
+/**
+ * @var \Panth\DynamicForms\Block\Adminhtml\Submission\View $block
+ */
+$submission = $block->getSubmission();
+$form = $block->getForm();
+$values = $block->getSubmissionValues();
+$statusOptions = $block->getStatusOptions();
+$currentStatus = $submission->getData('status');
+$statusColor = $block->getStatusColor($currentStatus);
+$updateStatusUrl = $block->getUpdateStatusUrl();
+$backUrl = $block->getBackUrl();
+$deleteUrl = $block->getDeleteUrl();
+?>
+
+<style>
+    .df-submission-view { max-width: 900px; }
+    .df-submission-toolbar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
+    .df-submission-toolbar .back-btn { padding: 7px 15px; border: 1px solid #ccc; background: #f5f5f5; border-radius: 4px; text-decoration: none; color: #333; font-size: 13px; }
+    .df-submission-toolbar .back-btn:hover { background: #e8e8e8; }
+    .df-submission-toolbar .delete-btn { padding: 7px 15px; border: 1px solid #d9534f; background: #d9534f; color: #fff; border-radius: 4px; text-decoration: none; font-size: 13px; cursor: pointer; }
+    .df-submission-toolbar .delete-btn:hover { background: #c9302c; }
+    .df-card { border: 1px solid #ccc; border-radius: 4px; background: #fff; margin-bottom: 20px; }
+    .df-card-header { padding: 12px 20px; background: #f5f5f5; border-bottom: 1px solid #ccc; font-size: 15px; font-weight: 600; border-radius: 4px 4px 0 0; }
+    .df-card-body { padding: 20px; }
+    .df-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .df-info-item { }
+    .df-info-item .df-info-label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .df-info-item .df-info-value { font-size: 14px; color: #333; word-break: break-word; }
+    .df-status-badge { display: inline-block; padding: 3px 12px; border-radius: 3px; color: #fff; font-size: 12px; font-weight: 600; }
+    .df-values-table { width: 100%; border-collapse: collapse; }
+    .df-values-table th, .df-values-table td { padding: 10px 15px; text-align: left; border-bottom: 1px solid #eee; }
+    .df-values-table th { background: #f9f9f9; font-size: 12px; font-weight: 600; color: #666; text-transform: uppercase; }
+    .df-values-table td { font-size: 13px; }
+    .df-values-table td .value-content { max-height: 200px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; }
+    .df-status-section { display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap; }
+    .df-status-section select { padding: 6px 10px; border: 1px solid #ccc; border-radius: 3px; font-size: 13px; }
+    .df-status-section button { padding: 6px 15px; border: 1px solid #1979c3; background: #1979c3; color: #fff; border-radius: 3px; cursor: pointer; font-size: 13px; }
+    .df-status-section button:hover { background: #1268a3; }
+    .df-notes-section textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; resize: vertical; box-sizing: border-box; }
+    .df-notes-section button { margin-top: 8px; padding: 6px 15px; border: 1px solid #5cb85c; background: #5cb85c; color: #fff; border-radius: 3px; cursor: pointer; font-size: 13px; }
+    .df-notes-section button:hover { background: #449d44; }
+    .df-message { padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 13px; display: none; }
+    .df-message.success { display: block; background: #dff0d8; color: #3c763d; border: 1px solid #d6e9c6; }
+    .df-message.error { display: block; background: #f2dede; color: #a94442; border: 1px solid #ebccd1; }
+</style>
+
+<div class="df-submission-view">
+    <!-- Toolbar -->
+    <div class="df-submission-toolbar">
+        <a href="<?= $block->escapeUrl($backUrl) ?>" class="back-btn">&larr; Back to Submissions</a>
+        <a href="<?= $block->escapeUrl($deleteUrl) ?>"
+           class="delete-btn"
+           onclick="return confirm('<?= $block->escapeJs(__('Are you sure you want to delete this submission?')) ?>');">
+            Delete Submission
+        </a>
+    </div>
+
+    <!-- Status message container -->
+    <div id="df-status-message" class="df-message"></div>
+
+    <!-- Submission Info Card -->
+    <div class="df-card">
+        <div class="df-card-header">
+            Submission #<?= (int) $submission->getId() ?>
+            &mdash;
+            <?= $block->escapeHtml($form->getData('name') ?: 'Unknown Form') ?>
+        </div>
+        <div class="df-card-body">
+            <div class="df-info-grid">
+                <div class="df-info-item">
+                    <div class="df-info-label">Customer Name</div>
+                    <div class="df-info-value"><?= $block->escapeHtml($submission->getData('customer_name') ?: 'N/A') ?></div>
+                </div>
+                <div class="df-info-item">
+                    <div class="df-info-label">Customer Email</div>
+                    <div class="df-info-value"><?= $block->escapeHtml($submission->getData('customer_email') ?: 'N/A') ?></div>
+                </div>
+                <div class="df-info-item">
+                    <div class="df-info-label">IP Address</div>
+                    <div class="df-info-value"><?= $block->escapeHtml($submission->getData('customer_ip') ?: 'N/A') ?></div>
+                </div>
+                <div class="df-info-item">
+                    <div class="df-info-label">Store ID</div>
+                    <div class="df-info-value"><?= (int) $submission->getData('store_id') ?></div>
+                </div>
+                <div class="df-info-item">
+                    <div class="df-info-label">Status</div>
+                    <div class="df-info-value">
+                        <span class="df-status-badge" style="background: <?= $block->escapeHtmlAttr($statusColor) ?>">
+                            <?= $block->escapeHtml(ucfirst($currentStatus)) ?>
+                        </span>
+                    </div>
+                </div>
+                <div class="df-info-item">
+                    <div class="df-info-label">Submitted At</div>
+                    <div class="df-info-value"><?= $block->escapeHtml($submission->getData('created_at') ?: 'N/A') ?></div>
+                </div>
+                <?php if ($submission->getData('customer_id')): ?>
+                <div class="df-info-item">
+                    <div class="df-info-label">Customer ID</div>
+                    <div class="df-info-value"><?= (int) $submission->getData('customer_id') ?></div>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submission Values Card -->
+    <div class="df-card">
+        <div class="df-card-header">Submitted Data</div>
+        <div class="df-card-body" style="padding: 0;">
+            <?php if (empty($values)): ?>
+                <div style="padding: 20px; text-align: center; color: #999;">No field values found for this submission.</div>
+            <?php else: ?>
+                <table class="df-values-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Field</th>
+                            <th style="width: 15%;">Type</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($values as $val): ?>
+                            <tr>
+                                <td><strong><?= $block->escapeHtml($val['field_label'] ?? 'Unknown Field') ?></strong></td>
+                                <td><span style="background: #e0e0e0; padding: 2px 8px; border-radius: 3px; font-size: 11px;"><?= $block->escapeHtml($val['field_type'] ?? '-') ?></span></td>
+                                <td>
+                                    <div class="value-content">
+                                        <?php
+                                        $fieldType = $val['field_type'] ?? '';
+                                        $fieldValue = $val['value'] ?? '';
+                                        if ($fieldType === 'file' && $fieldValue !== '' && (strpos($fieldValue, 'http') === 0)) : ?>
+                                            <a href="<?= $block->escapeUrl($fieldValue) ?>" target="_blank" style="color: #1979c3; text-decoration: underline;">Download/View File</a>
+                                        <?php else : ?>
+                                            <?= $block->escapeHtml($fieldValue) ?>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Update Status Card -->
+    <div class="df-card">
+        <div class="df-card-header">Update Status</div>
+        <div class="df-card-body">
+            <div class="df-status-section">
+                <select id="df-status-select">
+                    <?php foreach ($statusOptions as $option): ?>
+                        <option value="<?= $block->escapeHtmlAttr($option['value']) ?>"
+                            <?php if ($option['value'] === $currentStatus): ?> selected<?php endif; ?>>
+                            <?= $block->escapeHtml($option['label']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="button" id="df-update-status-btn">Update Status</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Notes Card -->
+    <div class="df-card">
+        <div class="df-card-header">Admin Notes</div>
+        <div class="df-card-body">
+            <div class="df-notes-section">
+                <textarea id="df-admin-notes" placeholder="Add internal notes about this submission..."><?= $block->escapeHtml($submission->getData('admin_notes') ?? '') ?></textarea>
+                <button type="button" id="df-save-notes-btn">Save Notes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    var updateStatusUrl = '<?= $block->escapeJs($updateStatusUrl) ?>';
+    var submissionId = <?= (int) $submission->getId() ?>;
+    var formKey = '<?= $block->escapeJs($block->getFormKey()) ?>';
+
+    function showMessage(type, text) {
+        var msgEl = document.getElementById('df-status-message');
+        msgEl.className = 'df-message ' + type;
+        msgEl.textContent = text;
+        setTimeout(function() {
+            msgEl.className = 'df-message';
+        }, 5000);
+    }
+
+    function sendUpdate(status, adminNotes) {
+        var params = new URLSearchParams();
+        params.append('submission_id', submissionId);
+        params.append('form_key', formKey);
+        if (status !== null) {
+            params.append('status', status);
+        }
+        if (adminNotes !== null) {
+            params.append('admin_notes', adminNotes);
+        }
+
+        fetch(updateStatusUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: params.toString()
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                showMessage('success', data.message || 'Updated successfully.');
+                if (status !== null) {
+                    // Update the status badge
+                    var badge = document.querySelector('.df-status-badge');
+                    if (badge) {
+                        var colorMap = {
+                            'new': '#1979c3',
+                            'read': '#f0ad4e',
+                            'replied': '#79a22e',
+                            'closed': '#999999'
+                        };
+                        badge.style.background = colorMap[status] || '#333333';
+                        badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                    }
+                }
+            } else {
+                showMessage('error', data.message || 'An error occurred.');
+            }
+        })
+        .catch(function(err) {
+            showMessage('error', 'Request failed: ' + err.message);
+        });
+    }
+
+    document.getElementById('df-update-status-btn').addEventListener('click', function() {
+        var status = document.getElementById('df-status-select').value;
+        sendUpdate(status, null);
+    });
+
+    document.getElementById('df-save-notes-btn').addEventListener('click', function() {
+        var notes = document.getElementById('df-admin-notes').value;
+        sendUpdate(null, notes);
+    });
+})();
+</script>

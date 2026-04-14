@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Standalone page template for /forms/{url_key}
+ *
+ * Note: The layout (panth_dynamicforms_form_view.xml) does not set a template
+ * on the DynamicForm block, so the block's _toHtml() auto-selects the correct
+ * theme-specific template (form_hyva.phtml or form.phtml).
+ *
+ * This file exists as an explicit template option. To use it, set it on the
+ * block in layout XML — it will include the correct widget template.
+ *
+ * @var \Panth\DynamicForms\Block\Widget\DynamicForm $block
+ */
+
+$form = $block->getForm();
+if (!$form) {
+    return;
+}
+
+$fields = $block->getFields();
+if (empty($fields)) {
+    echo '<div class="message info"><span>' . $block->escapeHtml((string) __('This form has no fields configured.')) . '</span></div>';
+    return;
+}
+
+// Create a child block to render the form widget
+$widgetBlock = $block->getLayout()->createBlock(
+    \Panth\DynamicForms\Block\Widget\DynamicForm::class,
+    'panth.dynamicforms.form.view.widget.' . $form->getId()
+);
+
+if ($widgetBlock) {
+    // The child block will auto-detect the template in its _toHtml()
+    echo $widgetBlock->toHtml();
+}

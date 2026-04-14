@@ -1,0 +1,27 @@
+{
+    "dynamicforms": {
+        "primary-color": "#0D9488",
+        "primary-hover": "#0F766E",
+        "error-color": "#DC2626",
+        "success-color": "#16A34A",
+        "input-bg": "#FFFFFF",
+        "input-border": "#D1D5DB",
+        "input-focus-border": "#0D9488",
+        "input-radius": "8px",
+        "input-padding": "12px 16px",
+        "input-font-size": "15px",
+        "label-color": "#374151",
+        "label-font-size": "14px",
+        "label-font-weight": "600",
+        "button-bg": "#0D9488",
+        "button-hover-bg": "#0F766E",
+        "button-text": "#FFFFFF",
+        "button-radius": "8px",
+        "button-padding": "14px 32px",
+        "button-font-size": "16px",
+        "button-font-weight": "700",
+        "required-color": "#DC2626",
+        "description-color": "#6B7280",
+        "field-gap": "20px"
+    }
+}

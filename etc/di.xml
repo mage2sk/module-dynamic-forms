@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Form Grid Collection -->
+    <virtualType name="Panth\DynamicForms\Model\ResourceModel\Form\Grid\Collection"
+                 type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">panth_dynamic_form</argument>
+            <argument name="resourceModel" xsi:type="string">Panth\DynamicForms\Model\ResourceModel\Form</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Submission Grid Collection -->
+    <virtualType name="Panth\DynamicForms\Model\ResourceModel\Submission\Grid\Collection"
+                 type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">panth_dynamic_form_submission</argument>
+            <argument name="resourceModel" xsi:type="string">Panth\DynamicForms\Model\ResourceModel\Submission</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Register Grid Collections with DataProvider -->
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="panth_dynamicforms_form_listing_data_source" xsi:type="string">Panth\DynamicForms\Model\ResourceModel\Form\Grid\Collection</item>
+                <item name="panth_dynamicforms_submission_listing_data_source" xsi:type="string">Panth\DynamicForms\Model\ResourceModel\Submission\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+</config>
