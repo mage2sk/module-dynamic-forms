@@ -117,10 +117,11 @@
    ========================================================================== */
 .panth-df-wrapper .panth-df-field > .label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     font-weight: 600;
     font-size: 14px;
     color: var(--panth-df-text);
+    line-height: 1.4;
 }
 
 .panth-df-wrapper .panth-df-field.required > .label span::after {
@@ -137,7 +138,7 @@
 .panth-df-wrapper .panth-df-field .select,
 .panth-df-wrapper .panth-df-field .multiselect {
     width: 100%;
-    padding: 8px 12px;
+    padding: 10px 12px;
     border: 1px solid var(--panth-df-border);
     border-radius: var(--panth-df-radius);
     font-size: 14px;
@@ -145,6 +146,16 @@
     background: var(--panth-df-bg);
     transition: border-color 0.2s ease;
     box-sizing: border-box;
+    min-height: 42px;
+}
+
+.panth-df-wrapper .panth-df-field .select {
+    -webkit-appearance: none;
+    appearance: none;
+    padding-right: 32px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
 }
 
 .panth-df-wrapper .panth-df-field .input-text:focus,
