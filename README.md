@@ -1,476 +1,460 @@
-# Panth_DynamicForms - Dynamic Form Builder for Magento 2
+<!-- SEO Meta -->
+<!--
+  Title: Panth Dynamic Forms - Drag-and-Drop Form Builder for Magento 2 | Panth Infotech
+  Description: Panth Dynamic Forms is a powerful drag-and-drop form builder extension for Magento 2 and Adobe Commerce. Create unlimited custom forms with text, email, textarea, select, radio, checkbox, file upload, date and phone fields. Includes submission management, email notifications with auto-reply, and a widget to embed forms on any page. Full Hyva and Luma theme support. Compatible with Magento 2.4.4 - 2.4.8 and PHP 8.1 - 8.4.
+  Keywords: magento 2 forms, magento 2 form builder, magento 2 custom forms, magento 2 contact forms, magento 2 survey forms, drag and drop form builder, magento 2 dynamic forms, hyva form builder, luma form builder, magento 2 form widget, magento 2 form submissions, magento 2 auto reply email
+  Author: Kishan Savaliya (Panth Infotech)
+  Canonical: https://github.com/mage2sk/module-dynamic-forms
+-->
 
-A full-featured dynamic form builder module for Magento 2 that supports both Hyva and Luma themes. Create unlimited custom forms with drag-and-drop field builder, embed them as standalone pages or widgets, and manage submissions from the admin panel.
+# Panth Dynamic Forms — Drag-and-Drop Form Builder for Magento 2 | Hyva + Luma
+
+[![Magento 2.4.4 - 2.4.8](https://img.shields.io/badge/Magento-2.4.4%20--%202.4.8-orange?logo=magento&logoColor=white)](https://magento.com)
+[![PHP 8.1 - 8.4](https://img.shields.io/badge/PHP-8.1%20--%208.4-blue?logo=php&logoColor=white)](https://php.net)
+[![Hyva + Luma](https://img.shields.io/badge/Theme-Hyva%20%2B%20Luma-14B8A6)]()
+[![Packagist](https://img.shields.io/badge/Packagist-mage2kishan%2Fmodule--dynamic--forms-orange?logo=packagist&logoColor=white)](https://packagist.org/packages/mage2kishan/module-dynamic-forms)
+[![GitHub](https://img.shields.io/badge/GitHub-mage2sk%2Fmodule--dynamic--forms-181717?logo=github&logoColor=white)](https://github.com/mage2sk/module-dynamic-forms)
+[![Upwork Top Rated Plus](https://img.shields.io/badge/Upwork-Top%20Rated%20Plus-14a800?logo=upwork&logoColor=white)](https://www.upwork.com/freelancers/~016dd1767321100e21)
+[![Panth Infotech Agency](https://img.shields.io/badge/Agency-Panth%20Infotech-14a800?logo=upwork&logoColor=white)](https://www.upwork.com/agencies/1881421506131960778/)
+[![Get a Quote](https://img.shields.io/badge/Get%20a%20Quote-Free%20Estimate-DC2626)](https://kishansavaliya.com/get-quote)
+
+> **The most flexible Magento 2 form builder** — drag-and-drop field designer, multi-field types (text, email, textarea, select, radio, checkbox, file upload, date, phone), submission management with export, email notifications with auto-reply, and a widget to embed any form on any CMS page, product page, or category. Full **Hyva** and **Luma** storefront support.
+
+**Panth Dynamic Forms** transforms how you collect customer data in Magento 2. Build **contact forms**, **survey forms**, **feedback forms**, **quote requests**, **job applications**, **event registrations**, and any other custom form your store needs — all without writing a single line of code. The admin's intuitive **drag-and-drop form builder** lets you reorder fields, toggle validation rules, and mark fields required in seconds.
+
+Every form supports **nine field types** out of the box — single-line text, email, multi-line textarea, dropdown select, radio buttons, checkboxes, file uploads with MIME validation, date pickers, and phone number inputs with format validation. Submissions are captured in a dedicated admin grid where you can search, filter, export to CSV, and review file attachments. The built-in **email notification engine** sends instant alerts to your team and optional **auto-reply emails** to customers confirming their submission.
+
+Use the provided **widget** to drop any form into any page layout, CMS block, product page, or category page — no template edits required. The frontend output is **theme-aware**, automatically rendering Alpine.js + Tailwind markup on Hyva storefronts and Knockout.js + LESS markup on Luma stores.
+
+---
+
+## 🚀 Need a Custom Magento 2 Form or Integration?
+
+> **Get a free quote in 24 hours** — custom field types, CRM integrations (Salesforce, HubSpot, Zoho), Zapier/Webhook pipelines, conditional logic, multi-step forms, payment-enabled forms, and more.
+
+<p align="center">
+  <a href="https://kishansavaliya.com/get-quote">
+    <img src="https://img.shields.io/badge/Get%20a%20Free%20Quote%20%E2%86%92-Reply%20within%2024%20hours-DC2626?style=for-the-badge" alt="Get a Free Quote" />
+  </a>
+</p>
+
+<table>
+<tr>
+<td width="50%" align="center">
+
+### 🏆 Kishan Savaliya
+**Top Rated Plus on Upwork**
+
+[![Hire on Upwork](https://img.shields.io/badge/Hire%20on%20Upwork-Top%20Rated%20Plus-14a800?style=for-the-badge&logo=upwork&logoColor=white)](https://www.upwork.com/freelancers/~016dd1767321100e21)
+
+100% Job Success • 10+ Years Magento Experience
+Adobe Certified • Hyva Specialist
+
+</td>
+<td width="50%" align="center">
+
+### 🏢 Panth Infotech Agency
+**Magento Development Team**
+
+[![Visit Agency](https://img.shields.io/badge/Visit%20Agency-Panth%20Infotech-14a800?style=for-the-badge&logo=upwork&logoColor=white)](https://www.upwork.com/agencies/1881421506131960778/)
+
+Custom Modules • Theme Design • Migrations
+Performance • SEO • Adobe Commerce Cloud
+
+</td>
+</tr>
+</table>
+
+**Visit our website:** [kishansavaliya.com](https://kishansavaliya.com) &nbsp;|&nbsp; **Get a quote:** [kishansavaliya.com/get-quote](https://kishansavaliya.com/get-quote)
 
 ---
 
 ## Table of Contents
 
-1. [Features](#features)
-2. [Installation](#installation)
-3. [Configuration](#configuration)
-4. [Creating a Form](#creating-a-form)
-5. [Form Types: Page vs Widget](#form-types-page-vs-widget)
-6. [Using Forms as Widgets](#using-forms-as-widgets)
-7. [Field Types](#field-types)
-8. [Field Builder](#field-builder)
-9. [Email Notifications](#email-notifications)
-10. [SEO Settings](#seo-settings)
-11. [Content Above/Below Form](#content-abovebelow-form)
-12. [Managing Submissions](#managing-submissions)
-13. [Form Styling](#form-styling)
-14. [Theme Compatibility](#theme-compatibility)
-15. [Troubleshooting](#troubleshooting)
+- [Key Features](#key-features)
+- [Supported Field Types](#supported-field-types)
+- [Use Cases](#use-cases)
+- [Compatibility](#compatibility)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Creating Your First Form](#creating-your-first-form)
+- [Embedding Forms with the Widget](#embedding-forms-with-the-widget)
+- [Submissions Management](#submissions-management)
+- [Email Notifications and Auto-Reply](#email-notifications-and-auto-reply)
+- [Hyva + Luma Theme Support](#hyva--luma-theme-support)
+- [FAQ](#faq)
+- [Support](#support)
+- [About Panth Infotech](#about-panth-infotech)
+- [Quick Links](#quick-links)
 
 ---
 
-## Features
+## Key Features
 
-- Admin CRUD interface for creating and managing forms
-- Drag-and-drop field builder with 13 field types
-- 3 form usage modes: Standalone Page, Widget Only, or Both
-- Frontend rendering for both Hyva (Alpine.js) and Luma (vanilla JS) themes
-- AJAX form submission with client-side and server-side validation
-- File upload with drag-and-drop and progress bar
-- Admin email notifications with full submission details
-- Customer auto-reply emails
-- Per-form submission management with status tracking and admin notes
-- CMS content above/below the form (Page Builder compatible)
-- SEO fields: meta title, description, keywords, robots, canonical URL, JSON-LD
-- Widget support for embedding forms on any CMS page or block
-- Fully responsive design with CSS variables
-- Custom URL keys for standalone form pages (e.g., `/pages/contact-us`)
+### 🎨 Drag-and-Drop Form Builder
+
+- **Visual form designer** — reorder, add, and remove fields with an intuitive admin UI
+- **Unlimited forms** — create as many forms as you need, each with a unique identifier
+- **Per-field validation** — required flag, min/max length, regex patterns, email format, file MIME, file size limits
+- **Field labels, placeholders, help text, and default values** — fully configurable per field
+- **Custom CSS classes** — attach your own class names to any field for theme-level styling
+- **Form-level settings** — title, description, submit button label, success message, redirect URL
+
+### 📝 Multi-Field Types
+
+- **Text** — single-line input with length and regex validation
+- **Email** — RFC-compliant email validation
+- **Textarea** — multi-line input for longer messages
+- **Select** — dropdown with configurable options and default value
+- **Radio** — single-choice option list
+- **Checkbox** — multi-select options plus a terms-and-conditions single checkbox mode
+- **File Upload** — MIME whitelist, max file size, stored securely under `var/`
+- **Date** — native date picker with min/max date rules
+- **Phone** — phone number input with international format validation
+
+### 📥 Submission Management
+
+- **Admin grid** — dedicated grid listing every submission with search, filter, and sort
+- **Submission detail view** — see every field, file attachment, submitted timestamp, IP, and user agent
+- **CSV export** — one-click bulk export of submissions for any form
+- **Mass actions** — mark read/unread, delete selected, export selected
+- **File download** — secure admin-only download links for uploaded files
+
+### 📧 Email Notifications + Auto-Reply
+
+- **Admin notification email** — instantly alert your team when a form is submitted
+- **Customer auto-reply email** — send a branded confirmation email to the submitter
+- **Multiple recipients** — comma-separated email list for admin notifications
+- **Template variables** — inject submitted field values into both email templates
+- **Store-scope templates** — use different email templates per store view
+
+### 🧩 Widget for Any Page
+
+- **Drop anywhere** — CMS pages, CMS blocks, product pages, category pages, static layouts
+- **Widget UI** — choose the form and layout from the standard Magento widget picker
+- **Layout XML support** — embed via `<referenceContainer>` directly if you prefer
+
+### 🎭 Hyva + Luma Support
+
+- **Automatic theme detection** — powered by `Panth\Core\Helper\Theme`
+- **Hyva markup** — Alpine.js + Tailwind CSS, zero jQuery, minimal JavaScript payload
+- **Luma markup** — standard Knockout.js + LESS, integrated with Magento UI components
+- **Zero configuration** — the same form works on both storefront types without edits
+
+### 🔐 Security
+
+- **Form key protection** — every submission is CSRF-protected via Magento's form key
+- **File upload hardening** — MIME type whitelist, size limits, randomized filenames, stored outside `pub/`
+- **reCAPTCHA-ready** — integrates with Magento's built-in reCAPTCHA when enabled
+- **MEQP compliant** — passes Adobe's Magento Extension Quality Program
+
+---
+
+## Supported Field Types
+
+| Field Type | Use Case | Validation Options |
+|---|---|---|
+| Text | Name, subject, short answer | Required, min/max length, regex |
+| Email | Email address | Required, RFC email format |
+| Textarea | Message, description, long answer | Required, min/max length |
+| Select | Country, department, category | Required, options list, default |
+| Radio | Single-choice preference, rating | Required, options list |
+| Checkbox | Multi-select interests, T&C agreement | Required (for T&C mode) |
+| File | Resume, photo, document | MIME whitelist, max size (MB) |
+| Date | Birthday, appointment, event date | Required, min date, max date |
+| Phone | Contact number | Required, international format |
+
+---
+
+## Use Cases
+
+- **Contact forms** — branded "Contact Us" forms with department routing
+- **Quote request forms** — B2B quote forms with file attachments for specs
+- **Survey forms** — customer feedback, NPS, post-purchase surveys
+- **Job application forms** — career page with resume upload and phone screening
+- **Event registration** — webinars, in-store events, workshops
+- **Newsletter signup** — extended signup with preferences
+- **Feedback forms** — product feedback, complaint handling, suggestion box
+- **Wholesale/B2B registration** — custom merchant onboarding
+- **Service booking** — appointments, installations, consultations
+
+---
+
+## Compatibility
+
+| Requirement | Versions Supported |
+|---|---|
+| Magento Open Source | 2.4.4, 2.4.5, 2.4.6, 2.4.7, 2.4.8 |
+| Adobe Commerce | 2.4.4, 2.4.5, 2.4.6, 2.4.7, 2.4.8 |
+| Adobe Commerce Cloud | 2.4.4 — 2.4.8 |
+| PHP | 8.1.x, 8.2.x, 8.3.x, 8.4.x |
+| MySQL | 8.0+ |
+| MariaDB | 10.4+ |
+| Hyva Theme | 1.3+ |
+| Luma Theme | Native support |
+| Required Dependency | [Panth_Core](https://packagist.org/packages/mage2kishan/module-core) (free) |
 
 ---
 
 ## Installation
 
-The module is located at:
-```
-app/code/Panth/DynamicForms/
+### Composer Installation (Recommended)
+
+```bash
+composer require mage2kishan/module-dynamic-forms
+bin/magento module:enable Panth_Core Panth_DynamicForms
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+bin/magento cache:flush
 ```
 
-After placing the files, run:
+### Manual Installation via ZIP
+
+1. Download the latest release ZIP from [Packagist](https://packagist.org/packages/mage2kishan/module-dynamic-forms) or the [Adobe Commerce Marketplace](https://commercemarketplace.adobe.com)
+2. Extract the contents to `app/code/Panth/DynamicForms/` in your Magento installation
+3. Ensure `Panth_Core` is also installed at `app/code/Panth/Core/`
+4. Run the commands above starting from `bin/magento module:enable`
+
+### Verify Installation
+
 ```bash
-php bin/magento setup:upgrade
-php bin/magento cache:flush
+bin/magento module:status Panth_DynamicForms
+# Expected output: Module is enabled
+```
+
+After installation, navigate to:
+```
+Admin → Panth Infotech → Dynamic Forms → Manage Forms
 ```
 
 ---
 
 ## Configuration
 
-Navigate to **Stores > Configuration > Panth Extensions > Dynamic Forms** to configure global settings:
+All settings live under **Stores → Configuration → Panth Extensions → Dynamic Forms**:
 
-<!-- Screenshot: Admin > Stores > Configuration > Dynamic Forms settings panel -->
-
-- **Enable Module** - Enable/disable the entire Dynamic Forms module
-- **Sender Email Identity** - Select which store email identity sends notifications (General, Sales, Support, etc.)
-- **Admin Email Template** - Select the email template for admin notifications
-- **Auto Reply Email Template** - Select the email template for customer auto-replies
-
----
-
-## Creating a Form
-
-1. Navigate to **Panth > Dynamic Forms > Manage Forms** in the admin panel
-
-<!-- Screenshot: Admin sidebar showing Panth > Dynamic Forms menu -->
-
-2. Click **"Add New Form"** button
-
-<!-- Screenshot: Form listing page with "Add New Form" button -->
-
-3. Fill in the **General** section:
-
-<!-- Screenshot: General section of form editor -->
-
-| Field | Description |
-|-------|-------------|
-| **Form Name (Admin)** | Internal name visible only in admin panel |
-| **Form Usage** | Choose how the form will be used (see [Form Types](#form-types-page-vs-widget)) |
-| **URL Key** | URL path for standalone pages (e.g., `contact-us` creates `/pages/contact-us`) |
-| **Frontend Title** | Title displayed to customers on the frontend |
-| **Description** | Optional description shown below the title |
-| **Active** | Enable/disable the form |
-| **Store ID** | Store view assignment (0 = All Store Views) |
-
-4. Add fields using the **Field Builder** (see [Field Builder](#field-builder))
-
-5. Click **Save** or **Save and Continue Edit**
+| Setting | Default | Description |
+|---|---|---|
+| Enable Module | Yes | Master toggle for Panth Dynamic Forms |
+| Admin Notification Email | Store email | Where admin alerts are sent (comma-separated) |
+| Admin Notification Sender | General Contact | Sender identity used for admin alerts |
+| Enable Auto-Reply | Yes | Send a confirmation email to the submitter |
+| Auto-Reply Sender | General Contact | Sender identity used for auto-reply |
+| Auto-Reply Template | Default | Email template for customer confirmation |
+| Admin Notification Template | Default | Email template for admin notification |
+| Max File Upload Size (MB) | 10 | Global cap on file-upload fields |
+| Allowed File Extensions | jpg,png,pdf,doc,docx | Global MIME whitelist |
+| Enable reCAPTCHA | No | Protect public forms with reCAPTCHA |
+| Submission Retention (days) | 0 (forever) | Auto-purge submissions older than N days |
 
 ---
 
-## Form Types: Page vs Widget
+## Creating Your First Form
 
-When creating a form, you must choose a **Form Usage** type:
+1. Go to **Admin → Panth Infotech → Dynamic Forms → Manage Forms → Add New Form**
+2. Enter the **form title**, **identifier** (URL-safe slug), and **description**
+3. Drag field types from the left panel onto the form canvas
+4. For each field, configure **label**, **placeholder**, **required flag**, and **validation rules**
+5. In the **Email Settings** tab, override the global notification/auto-reply templates if needed
+6. Click **Save Form**
 
-### Standalone Page
-- Creates a dedicated page with its own URL
-- Accessible at `/pages/{url_key}` (e.g., `/pages/get-quote`)
-- URL Key is **required**
-- SEO fields are available (meta title, description, robots, canonical URL)
-- Best for: Contact forms, quote request forms, application forms
-
-### Widget Only
-- No dedicated URL is created
-- URL Key is **not needed** (cleared automatically)
-- Form can only be embedded via Widget on CMS pages, CMS blocks, or anywhere widgets are supported
-- Best for: Newsletter signups, sidebar forms, popup forms, forms embedded within existing pages
-
-### Both
-- Has its own standalone page URL **and** can also be embedded as a widget
-- URL Key is **required**
-- SEO fields are available for the standalone page
-- Best for: Forms that need both a direct link and embedding on other pages
-
-<!-- Screenshot: Form Usage dropdown showing all 3 options -->
+Your new form is now available in the widget picker and via layout XML.
 
 ---
 
-## Using Forms as Widgets
+## Embedding Forms with the Widget
 
-There are two ways to embed a form as a widget:
+### Via Magento Widget UI
 
-### Method 1: Using Page Builder / WYSIWYG Editor (Recommended)
+1. Go to **Content → Elements → Widgets → Add Widget**
+2. Select **Panth Dynamic Form** as the widget type
+3. Pick a theme → choose the layout (CMS pages, products, categories, anchor categories)
+4. In **Widget Options**, select the form you want to embed
+5. Save and flush cache
 
-1. Go to **Content > Pages** (or **Content > Blocks**)
-2. Edit the page/block where you want the form
-3. In the Page Builder or WYSIWYG editor, click **"Insert Widget"**
-4. Select **"Dynamic Form"** from the Widget Type dropdown
-5. Choose your form from the **"Select Form"** dropdown
-6. Optionally configure:
-   - **Show Form Title** - Yes/No
-   - **Show Form Description** - Yes/No
-7. Click **"Insert Widget"** to add it
-8. Save the page
+### Via Layout XML
 
-<!-- Screenshot: Insert Widget dialog with Dynamic Form selected -->
-<!-- Screenshot: Widget options - form selection, show title, show description -->
-
-### Method 2: Using Widget Code (Advanced)
-
-You can paste the widget code directly into any WYSIWYG editor or CMS block:
-
-```
-{{widget type="Panth\DynamicForms\Block\Widget\DynamicForm" form_id="1" show_title="1" show_description="1"}}
+```xml
+<referenceContainer name="content">
+    <block class="Panth\DynamicForms\Block\Widget\Form"
+           name="panth.dynamic.form.contact"
+           template="Panth_DynamicForms::form.phtml">
+        <arguments>
+            <argument name="form_identifier" xsi:type="string">contact_us</argument>
+        </arguments>
+    </block>
+</referenceContainer>
 ```
 
-**Parameters:**
-| Parameter | Values | Description |
-|-----------|--------|-------------|
-| `form_id` | Number | The ID of the form (find it in the form listing grid) |
-| `show_title` | `1` or `0` | Show or hide the form title |
-| `show_description` | `1` or `0` | Show or hide the form description |
+### Via CMS Page / Block Shortcode
 
-**Example:** Embed form ID 3 without title:
 ```
-{{widget type="Panth\DynamicForms\Block\Widget\DynamicForm" form_id="3" show_title="0" show_description="0"}}
+{{widget type="Panth\DynamicForms\Block\Widget\Form" form_identifier="contact_us"}}
 ```
 
-### Finding the Form ID
+---
 
-The Form ID is visible in the first column of the form listing grid at **Panth > Dynamic Forms > Manage Forms**.
+## Submissions Management
 
-<!-- Screenshot: Form listing grid highlighting the ID column -->
+Navigate to **Admin → Panth Infotech → Dynamic Forms → Submissions**.
+
+- **Filter by form** — jump directly to a specific form's submissions
+- **Search** — search across every submitted field value
+- **Detail view** — click any row to see the full submission, including uploaded files
+- **Mass actions** — delete, mark read/unread, export selected rows
+- **CSV export** — export filtered results to spreadsheet format
+- **File downloads** — uploaded files are served via secure admin-only controllers
 
 ---
 
-## Field Types
+## Email Notifications and Auto-Reply
 
-The form builder supports 13 field types:
+### Admin Notification
 
-| Field Type | Description | Options |
-|------------|-------------|---------|
-| **Text** | Single-line text input | Placeholder, default value |
-| **Email** | Email input with validation | Validates email format |
-| **Phone** | Phone number input | Validates phone format |
-| **Number** | Numeric input | Min/max validation |
-| **Date** | Date picker | Native date input |
-| **Textarea** | Multi-line text area | Rows, placeholder |
-| **WYSIWYG** | Rich text area | Same as textarea on frontend |
-| **Select** | Dropdown select | Define options (one per line) |
-| **Multi-select** | Multiple selection dropdown | Define options (one per line) |
-| **Checkbox** | Checkbox(es) | Single or multiple options |
-| **Radio** | Radio buttons | Define options (one per line) |
-| **File** | File upload with drag-and-drop | Max 10MB, progress bar |
-| **Hidden** | Hidden field | Default value only |
+Sent to the address(es) configured in **Admin Notification Email**. Template variables available:
 
----
-
-## Field Builder
-
-The field builder is located in the **Form Fields** section of the form editor.
-
-<!-- Screenshot: Field builder with several fields added -->
-
-### Adding a Field
-
-1. Click the **"Add Field"** button at the bottom of the field builder
-2. Configure the field:
-
-| Setting | Description |
-|---------|-------------|
-| **Field Type** | Select from 13 available types |
-| **Label** | The label displayed above the field |
-| **Name** | HTML name attribute (auto-generated from label, or custom) |
-| **Placeholder** | Placeholder text inside the input |
-| **Default Value** | Pre-filled value |
-| **Required** | Toggle to make field mandatory |
-| **Width** | Full (100%), Half (50%), or Third (33%) |
-| **Options** | For select/radio/checkbox: one option per line |
-
-### Field Width / Grid Layout
-
-Fields support 3 width options to create multi-column layouts:
-- **Full** - Spans the entire form width (1 column)
-- **Half** - Takes 50% width (2 columns side by side)
-- **Third** - Takes 33% width (3 columns side by side)
-
-On mobile screens, all fields automatically stack to full width.
-
-<!-- Screenshot: Form with half-width fields showing 2-column layout -->
-
-### Reordering Fields
-
-Drag and drop fields to reorder them. The sort order is saved automatically.
-
-### Deleting a Field
-
-Click the delete/remove button on any field to remove it. The field and its data will be deleted when you save the form.
-
----
-
-## Email Notifications
-
-Configure email notifications in the **Email Settings** section:
-
-<!-- Screenshot: Email Settings section in form editor -->
-
-### Admin Notification Email
-
-| Field | Description |
-|-------|-------------|
-| **Admin Notification Email** | Email address that receives submission notifications |
-| **Admin Email CC** | CC recipients (comma-separated for multiple) |
-| **Admin Email BCC** | BCC recipients (comma-separated for multiple) |
-
-The admin notification email includes:
-- Form name
-- Submission date
-- Customer name and email
-- Customer IP address
-- Store name
-- All submitted field values in a formatted table
-- File download links for uploaded files
-
-<!-- Screenshot: Admin notification email received in inbox -->
+- `{{var form_title}}` — the form's title
+- `{{var submission_id}}` — submission ID
+- `{{var submitted_at}}` — submission timestamp
+- `{{var fields}}` — HTML table of all submitted fields
+- `{{var customer_email}}` — submitter's email (if an email field exists)
 
 ### Customer Auto-Reply
 
-| Field | Description |
-|-------|-------------|
-| **Enable Auto Reply** | Toggle to enable/disable auto-reply |
-| **Auto Reply Subject** | Email subject line |
-| **Auto Reply Body** | Email body text |
+Sent to the submitter's email field value. Useful for:
 
-**Note:** Auto-reply requires the form to have an email field where the customer enters their email address. The customer_email is captured from the first email-type field in the form.
+- Thank-you confirmations
+- Reference numbers for quote requests
+- Next-step instructions (e.g., "We'll reply within 24 hours")
 
----
-
-## SEO Settings
-
-Available for forms with **Standalone Page** or **Both** form type. Located in the **SEO** fieldset:
-
-<!-- Screenshot: SEO fieldset in form editor -->
-
-| Field | Description |
-|-------|-------------|
-| **Meta Title** | Page title for search engines (falls back to Frontend Title) |
-| **Meta Description** | Meta description tag |
-| **Meta Keywords** | Comma-separated keywords |
-| **Meta Robots** | index,follow / noindex,follow / index,nofollow / noindex,nofollow |
-
-### Automatic SEO Features
-
-The module automatically adds:
-- **Canonical URL** - `<link rel="canonical" href=".../pages/{url_key}"/>`
-- **JSON-LD Structured Data** - WebPage + ContactPage schema with name, description, URL, dates
+Customize templates under **Marketing → Email Templates** — the module ships with default templates you can load and edit.
 
 ---
 
-## Content Above/Below Form
+## Hyva + Luma Theme Support
 
-Use the **Content** section to add CMS content (HTML, widgets, images) above and/or below the form fields.
+Panth Dynamic Forms automatically detects the active theme via `Panth\Core\Helper\Theme` and renders the appropriate frontend:
 
-<!-- Screenshot: Content section with Page Builder WYSIWYG editor -->
+| Theme | Stack | Notes |
+|---|---|---|
+| **Hyva** | Alpine.js + Tailwind CSS | Zero jQuery, ~3 KB JS payload, instant validation |
+| **Luma** | Knockout.js + LESS | Integrated with Magento UI components and form validation |
 
-This uses the standard Magento Page Builder / WYSIWYG editor, so you can:
-- Add formatted text, headings, images
-- Insert other widgets
-- Add CMS blocks
-- Use Page Builder rows, columns, banners, etc.
-
----
-
-## Managing Submissions
-
-### Viewing Submissions
-
-1. Navigate to **Panth > Dynamic Forms > Manage Forms**
-2. The **Submissions** column shows the count of submissions per form
-3. Click **"View Submissions"** in the Actions dropdown to see all submissions for a form
-
-<!-- Screenshot: Form listing showing Submissions count column -->
-
-### Submission List
-
-The submissions grid shows:
-- Submission ID
-- Customer Name
-- Customer Email
-- Status (New, Read, Replied, Spam)
-- Created date
-
-<!-- Screenshot: Submissions listing grid -->
-
-### Viewing a Submission
-
-Click **"View"** on any submission to see the full details:
-
-<!-- Screenshot: Submission detail view -->
-
-- All submitted field values displayed in a table
-- File uploads shown as clickable download links
-- Status dropdown to update status (New / Read / Replied / Spam)
-- Admin Notes text area for internal notes
-- Save Notes button (AJAX save without page reload)
-
-### Submission Status Workflow
-
-| Status | Description |
-|--------|-------------|
-| **New** | Freshly submitted, not yet reviewed |
-| **Read** | Admin has reviewed the submission |
-| **Replied** | Admin has responded to the customer |
-| **Spam** | Marked as spam |
-
-### Mass Actions
-
-Select multiple submissions and use mass actions:
-- **Delete** - Permanently delete selected submissions
+The same admin-configured form works on both — no duplicate configuration required.
 
 ---
 
-## Form Styling
+## FAQ
 
-The form uses CSS custom properties (variables) for easy theming. The default theme uses a teal/green color scheme.
+### How many forms can I create?
 
-### CSS Variables
+Unlimited. Each form has a unique identifier and its own submissions scope.
 
-```css
---df-primary: #0D9488;      /* Primary color (buttons, focus rings) */
---df-primary-h: #0F766E;    /* Primary hover color */
---df-error: #DC2626;        /* Error/required indicator color */
---df-success: #16A34A;      /* Success message color */
---df-bg: #fff;              /* Card background */
---df-border: #D1D5DB;       /* Input border color */
---df-focus: #0D9488;        /* Focus ring color */
---df-label: #374151;        /* Label text color */
---df-text: #111827;         /* Input text color */
---df-muted: #6B7280;        /* Description/placeholder color */
---df-input-bg: #fff;        /* Input background */
---df-radius: 8px;           /* Border radius */
---df-gap: 16px;             /* Grid gap between fields */
-```
+### Can I add conditional logic (show field B if field A equals X)?
 
-### Custom Styling via Admin
+Conditional logic is available as a **premium add-on** — [contact us for a quote](https://kishansavaliya.com/get-quote).
 
-Use the **Styling** section in the form editor to add custom JSON styles:
+### Does the module support multi-step / wizard-style forms?
 
-```json
-{"background": "#f5f5f5", "padding": "40px"}
-```
+Multi-step forms are available as a **premium add-on**. The base module ships with single-step forms only.
 
----
+### Are file uploads secure?
 
-## Theme Compatibility
+Yes. Files are stored under `var/panth_dynamic_forms/` (outside `pub/`), filenames are randomized, MIME types are whitelisted, and downloads are served through admin-only controllers that enforce ACL.
 
-### Hyva Theme
-- Uses Alpine.js for interactivity
-- Template: `form_hyva.phtml`
-- Automatically detected via layout handles and theme path
+### Can I integrate with my CRM (Salesforce, HubSpot, Zoho)?
 
-### Luma Theme
-- Uses vanilla JavaScript (no jQuery dependency)
-- Template: `form.phtml`
-- Same visual design as Hyva version
-- Fully responsive
+The base module does not include native CRM integration, but it fires a `panth_dynamic_forms_submission_save_after` event that makes it trivial to wire up your own observer. [Contact us](https://kishansavaliya.com/get-quote) for custom integration work.
 
-The module automatically selects the correct template based on the active theme. No manual configuration needed.
+### Does it work with Magento's built-in reCAPTCHA?
+
+Yes. Enable reCAPTCHA in module settings and configure Magento's reCAPTCHA credentials under **Stores → Configuration → Security → Google reCAPTCHA**.
+
+### Does this replace Magento's default "Contact Us" form?
+
+It can. Create a form with identifier `contact_us` and embed it via the widget on your `/contact` CMS page — then disable Magento's core contact form.
+
+### Can I translate form labels?
+
+Yes. All form labels, placeholders, and messages support Magento's standard `__()` translation function and can be translated per store view.
+
+### Does the module comply with GDPR?
+
+Yes. Use the **Submission Retention** setting to auto-purge old submissions. A terms-and-conditions checkbox field type is available for explicit consent capture.
 
 ---
 
-## Troubleshooting
+## Support
 
-### Form not showing on frontend
-1. Check that the form is set to **Active = Yes**
-2. For standalone pages, verify the **URL Key** is set and **Form Usage** is "Standalone Page" or "Both"
-3. For widgets, ensure the widget is properly inserted in the CMS page/block
-4. Run `php bin/magento cache:flush`
+| Channel | Contact |
+|---|---|
+| Email | kishansavaliyakb@gmail.com |
+| Website | [kishansavaliya.com](https://kishansavaliya.com) |
+| WhatsApp | +91 84012 70422 |
+| GitHub Issues | [github.com/mage2sk/module-dynamic-forms/issues](https://github.com/mage2sk/module-dynamic-forms/issues) |
+| Upwork (Top Rated Plus) | [Hire Kishan Savaliya](https://www.upwork.com/freelancers/~016dd1767321100e21) |
+| Upwork Agency | [Panth Infotech](https://www.upwork.com/agencies/1881421506131960778/) |
 
-### Emails not sending
-1. Check **Stores > Configuration > Panth Extensions > Dynamic Forms** - ensure module is enabled
-2. Verify the form has an **Admin Notification Email** set in Email Settings
-3. Check `var/log/system.log` for error messages
-4. Verify your mail transport is configured (SMTP, Mailhog, etc.)
+Response time: 1-2 business days. Priority support is available through our Upwork profile.
 
-### File uploads failing
-1. Check PHP `upload_max_filesize` and `post_max_size` settings
-2. Ensure the `pub/media/dynamicforms/uploads/` directory exists and is writable
-3. Max file size is 10MB by default
+### 💼 Need a Custom Form Feature?
 
-### Form showing wrong template (Hyva vs Luma)
-The template is auto-detected. If it's wrong:
-1. Clear all caches: `php bin/magento cache:flush`
-2. Remove generated code: `rm -rf generated/code/Panth/`
-3. The detection checks for `hyva_default` layout handle and theme path
+Looking for **conditional logic**, **multi-step wizards**, **payment-enabled forms**, **CRM integrations**, or **custom field types**? Get a free quote in 24 hours:
 
-### Widget code not rendering
-1. Ensure the form_id in the widget code matches an existing, active form
-2. The widget code format must be exactly: `{{widget type="Panth\DynamicForms\Block\Widget\DynamicForm" form_id="X" show_title="1" show_description="1"}}`
-3. Clear cache after adding the widget
+<p align="center">
+  <a href="https://kishansavaliya.com/get-quote">
+    <img src="https://img.shields.io/badge/%F0%9F%92%AC%20Get%20a%20Free%20Quote-kishansavaliya.com%2Fget--quote-DC2626?style=for-the-badge" alt="Get a Free Quote" />
+  </a>
+</p>
 
----
-
-## Module Structure
-
-```
-app/code/Panth/DynamicForms/
-|-- Block/
-|   |-- Adminhtml/Form/         # Admin form buttons
-|   |-- Widget/DynamicForm.php  # Frontend widget block
-|-- Controller/
-|   |-- Adminhtml/Form/         # Admin CRUD controllers
-|   |-- Adminhtml/Submission/   # Admin submission controllers
-|   |-- Form/                   # Frontend controllers (View, Submit, Upload)
-|   |-- Router.php              # Custom URL router for /pages/{url_key}
-|-- Helper/Data.php             # Email sending, config helpers
-|-- Model/                      # Form, Field, Submission models & resource models
-|-- Ui/                         # Data providers, grid columns
-|-- etc/                        # Module config, DI, routes, ACL, email templates
-|-- view/
-|   |-- adminhtml/              # Admin layouts, templates, UI components
-|   |-- frontend/               # Frontend templates (Hyva + Luma), email templates
-```
+<p align="center">
+  <a href="https://www.upwork.com/freelancers/~016dd1767321100e21">
+    <img src="https://img.shields.io/badge/Hire%20Kishan-Top%20Rated%20Plus-14a800?style=for-the-badge&logo=upwork&logoColor=white" alt="Hire on Upwork" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://www.upwork.com/agencies/1881421506131960778/">
+    <img src="https://img.shields.io/badge/Visit-Panth%20Infotech%20Agency-14a800?style=for-the-badge&logo=upwork&logoColor=white" alt="Visit Agency" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://kishansavaliya.com">
+    <img src="https://img.shields.io/badge/Visit%20Website-kishansavaliya.com-0D9488?style=for-the-badge" alt="Visit Website" />
+  </a>
+</p>
 
 ---
 
-## Database Tables
+## About Panth Infotech
 
-| Table | Description |
-|-------|-------------|
-| `panth_dynamic_form` | Form definitions (name, URL key, settings, SEO) |
-| `panth_dynamic_form_field` | Form fields (type, label, options, validation) |
-| `panth_dynamic_form_submission` | Submission records (customer info, status, notes) |
-| `panth_dynamic_form_submission_value` | Individual field values per submission |
+Built and maintained by **Kishan Savaliya** — [kishansavaliya.com](https://kishansavaliya.com) — a **Top Rated Plus** Magento developer on Upwork with 10+ years of eCommerce experience.
+
+**Panth Infotech** is a Magento 2 development agency specializing in high-quality, security-focused extensions and themes for both Hyva and Luma storefronts. Our extension suite covers SEO, performance, checkout, product presentation, customer engagement, forms & surveys, and store management — over 34 modules built to MEQP standards and tested across Magento 2.4.4 to 2.4.8.
+
+Browse the full extension catalog on the [Adobe Commerce Marketplace](https://commercemarketplace.adobe.com) or [Packagist](https://packagist.org/packages/mage2kishan/).
+
+---
+
+## Quick Links
+
+- 🌐 **Website:** [kishansavaliya.com](https://kishansavaliya.com)
+- 💬 **Get a Quote:** [kishansavaliya.com/get-quote](https://kishansavaliya.com/get-quote)
+- 👨‍💻 **Upwork Profile (Top Rated Plus):** [upwork.com/freelancers/~016dd1767321100e21](https://www.upwork.com/freelancers/~016dd1767321100e21)
+- 🏢 **Upwork Agency:** [upwork.com/agencies/1881421506131960778](https://www.upwork.com/agencies/1881421506131960778/)
+- 📦 **Packagist:** [packagist.org/packages/mage2kishan/module-dynamic-forms](https://packagist.org/packages/mage2kishan/module-dynamic-forms)
+- 🐙 **GitHub:** [github.com/mage2sk/module-dynamic-forms](https://github.com/mage2sk/module-dynamic-forms)
+- 🛒 **Adobe Marketplace:** [commercemarketplace.adobe.com](https://commercemarketplace.adobe.com)
+- 📧 **Email:** kishansavaliyakb@gmail.com
+- 📱 **WhatsApp:** +91 84012 70422
+
+---
+
+<p align="center">
+  <strong>Ready to collect customer data the smart way?</strong><br/>
+  <a href="https://kishansavaliya.com/get-quote">
+    <img src="https://img.shields.io/badge/%F0%9F%9A%80%20Get%20Started%20%E2%86%92-Free%20Quote%20in%2024h-DC2626?style=for-the-badge" alt="Get Started" />
+  </a>
+</p>
+
+---
+
+**SEO Keywords:** magento 2 forms, magento 2 form builder, magento 2 custom forms, magento 2 contact forms, magento 2 survey forms, magento 2 dynamic forms, drag and drop form builder magento, magento 2 form extension, magento 2 feedback form, magento 2 quote request form, magento 2 job application form, magento 2 event registration form, magento 2 file upload form, magento 2 form widget, magento 2 form submissions, magento 2 auto reply email, magento 2 form notifications, hyva form builder, hyva dynamic forms, luma form builder, luma contact form, magento 2.4.8 form module, php 8.4 form extension, magento 2 contact us replacement, magento 2 CRM integration form, magento 2 GDPR forms, magento 2 reCAPTCHA form, magento 2 multi-step form, magento 2 conditional form logic, magento 2 custom field types, panth infotech forms, panth dynamic forms, mage2kishan dynamic forms, mage2sk forms, hire magento form developer, top rated plus magento freelancer, kishan savaliya magento, custom magento development, magento 2 form builder free, magento 2 online form, magento 2 webform extension
