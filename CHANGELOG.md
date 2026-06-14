@@ -4,6 +4,20 @@ All notable changes to this extension are documented here. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.5] — 2026-06-14
+
+### Fixed
+
+- **Customer auto-reply email no longer prints HTML as literal text.** In
+  `view/frontend/email/customer_autoreply.html` the body was output as a bare
+  `{{var auto_reply_body}}`. Magento's email template filter applies a default
+  `escape` modifier to any `{{var}}` without an explicit modifier, so the
+  admin-authored HTML in the auto-reply body was `escapeHtml()`'d and tags such
+  as `<p>`, `<br />` and `<ul>` showed up as text. The variable now uses
+  `{{var auto_reply_body|raw}}`, consistent with how `submission_fields|raw` is
+  already handled in `admin_notification.html`. `auto_reply_body` is
+  admin-authored per form, so `|raw` is appropriate.
+
 ## [1.0.0] — Initial release
 
 ### Added — Admin form builder
