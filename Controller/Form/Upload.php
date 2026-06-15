@@ -12,6 +12,7 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\MediaStorage\Model\File\UploaderFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Panth\DynamicForms\Helper\Data as Helper;
+use Panth\Core\Security\UploadExtensionPolicy;
 use Psr\Log\LoggerInterface;
 
 class Upload implements HttpPostActionInterface
@@ -23,6 +24,7 @@ class Upload implements HttpPostActionInterface
     private StoreManagerInterface $storeManager;
     private Helper $helper;
     private LoggerInterface $logger;
+    private UploadExtensionPolicy $uploadExtensionPolicy;
 
     public function __construct(
         RequestInterface $request,
@@ -31,7 +33,8 @@ class Upload implements HttpPostActionInterface
         UploaderFactory $uploaderFactory,
         StoreManagerInterface $storeManager,
         Helper $helper,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        UploadExtensionPolicy $uploadExtensionPolicy
     ) {
         $this->request = $request;
         $this->jsonFactory = $jsonFactory;
@@ -40,6 +43,7 @@ class Upload implements HttpPostActionInterface
         $this->storeManager = $storeManager;
         $this->helper = $helper;
         $this->logger = $logger;
+        $this->uploadExtensionPolicy = $uploadExtensionPolicy;
     }
 
     public function execute(): \Magento\Framework\Controller\Result\Json
@@ -58,6 +62,16 @@ class Upload implements HttpPostActionInterface
         try {
             // The JS sends file as 'file' in FormData
             $uploader = $this->uploaderFactory->create(['fileId' => 'file']);
+
+            // Hard executable deny-list — a second gate independent of the
+            // admin-configurable allowlist, so a misconfigured allowed-extensions
+            // field can never permit web-executable uploads (.php/.phtml/.sh/...).
+            $originalName = (isset($_FILES['file']['name']) && is_string($_FILES['file']['name']))
+                ? $_FILES['file']['name']
+                : '';
+            if ($originalName !== '') {
+                $this->uploadExtensionPolicy->assertSafeExtension($originalName);
+            }
 
             // Set allowed extensions
             $allowedExtensions = $this->helper->getAllowedExtensions();

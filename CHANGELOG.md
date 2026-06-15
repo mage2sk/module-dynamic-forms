@@ -4,6 +4,22 @@ All notable changes to this extension are documented here. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.6] — Upload extension hardening
+
+### Added
+- `Controller/Form/Upload` now calls `Panth\Core\Security\UploadExtensionPolicy::assertSafeExtension()`
+  before saving — a hard executable deny-list (`php`, `phtml`, `sh`, `jsp`, …)
+  independent of the admin-configurable allowed-extensions field. Requires
+  `mage2kishan/module-core ^1.0.17`.
+
+### Changed
+- Default allowed-extensions (used only when the admin field is left empty)
+  no longer includes `txt` or `zip`. Form uploads are served from a public
+  `pub/media` URL, so a benign-but-arbitrary file must not be a
+  default-accepted type. Stores that need those types can add them back in
+  the admin field. Stores that already configured their own list are
+  unaffected.
+
 ## [1.0.5] — 2026-06-14
 
 ### Fixed

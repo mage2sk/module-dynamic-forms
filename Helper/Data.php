@@ -105,7 +105,11 @@ class Data extends AbstractHelper
     {
         $extensions = $this->getConfig(self::XML_PATH_ALLOWED_EXTENSIONS, $storeId);
         if (!$extensions) {
-            return ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'zip'];
+            // Safe default (never empty, never allow-all). `txt`/`zip` were
+            // dropped: uploads are served from a public pub/media URL, so a
+            // benign-but-arbitrary file (defacement/phishing) must not be a
+            // default-accepted type. Add them back per-store only if needed.
+            return ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv'];
         }
 
         return array_map('trim', explode(',', $extensions));
