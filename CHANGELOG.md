@@ -4,6 +4,13 @@ All notable changes to this extension are documented here. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.7] - 2026-06-18
+
+### Changed
+- README rewritten to match current feature set: accurate system.xml configuration
+  table (General, Email, Display, Styling groups), correct field type count (13),
+  live product URL canonical, and gold-template section order.
+
 ## [1.0.6] — Upload extension hardening
 
 ### Added
