@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Model\Config\Source;
@@ -9,30 +8,16 @@ use Panth\DynamicForms\Model\ResourceModel\Form\CollectionFactory;
 
 class FormList implements OptionSourceInterface
 {
-    /**
-     * @var CollectionFactory
-     */
     private CollectionFactory $collectionFactory;
 
-    /**
-     * @var array|null
-     */
     private ?array $options = null;
 
-    /**
-     * @param CollectionFactory $collectionFactory
-     */
     public function __construct(
         CollectionFactory $collectionFactory
     ) {
         $this->collectionFactory = $collectionFactory;
     }
 
-    /**
-     * Return array of active forms as options
-     *
-     * @return array
-     */
     public function toOptionArray(): array
     {
         if ($this->options === null) {

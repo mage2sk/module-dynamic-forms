@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Model\Config\Source;
@@ -8,11 +7,6 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class FormLayout implements OptionSourceInterface
 {
-    /**
-     * Return array of layout options
-     *
-     * @return array
-     */
     public function toOptionArray(): array
     {
         return [

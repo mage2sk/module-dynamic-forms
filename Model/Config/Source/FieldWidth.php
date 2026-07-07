@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Model\Config\Source;
@@ -8,9 +7,6 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class FieldWidth implements OptionSourceInterface
 {
-    /**
-     * @inheritdoc
-     */
     public function toOptionArray(): array
     {
         return [

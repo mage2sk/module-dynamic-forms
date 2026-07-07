@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Model\Config\Source;
@@ -13,9 +12,6 @@ class FormStatus implements OptionSourceInterface
     public const STATUS_REPLIED = 'replied';
     public const STATUS_CLOSED = 'closed';
 
-    /**
-     * @inheritdoc
-     */
     public function toOptionArray(): array
     {
         return [

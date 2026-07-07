@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Controller\Adminhtml\Submission;
@@ -43,7 +42,6 @@ class View extends Action
             return $resultRedirect->setPath('*/*/index');
         }
 
-        // Mark as read if status is new
         if ($submission->getData('status') === 'new') {
             $submission->setData('status', 'read');
             $this->submissionResource->save($submission);

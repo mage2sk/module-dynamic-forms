@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Controller;
@@ -26,30 +25,24 @@ class Router implements RouterInterface
         $this->helper = $helper;
     }
 
-    /**
-     * Match /pages/{url_key} and forward to Form/View controller
-     */
     public function match(RequestInterface $request): ?\Magento\Framework\App\ActionInterface
     {
         if (!$this->helper->isEnabled()) {
             return null;
         }
 
-        // Prevent re-matching on forwarded requests
         if ($request->getModuleName() === 'dynamicforms') {
             return null;
         }
 
         $identifier = trim($request->getPathInfo(), '/');
 
-        // Match pattern: pages/{url_key}
         if (!preg_match('#^pages/([a-zA-Z0-9_-]+)$#', $identifier, $matches)) {
             return null;
         }
 
         $urlKey = $matches[1];
 
-        // Verify the form exists, is active, and has page type (not widget-only)
         $collection = $this->formCollectionFactory->create();
         $collection->addFieldToFilter('url_key', $urlKey)
             ->addFieldToFilter('is_active', 1)
@@ -60,7 +53,6 @@ class Router implements RouterInterface
             return null;
         }
 
-        // Forward to the controller
         $request->setModuleName('dynamicforms')
             ->setControllerName('form')
             ->setActionName('view')

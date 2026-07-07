@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Model\ResourceModel\Form;
@@ -10,19 +9,10 @@ use Panth\DynamicForms\Model\ResourceModel\Form as FormResource;
 
 class Collection extends AbstractCollection
 {
-    /**
-     * @var string
-     */
     protected $_idFieldName = 'form_id';
 
-    /**
-     * @var string
-     */
     protected $_eventPrefix = 'panth_dynamic_form_collection';
 
-    /**
-     * @inheritdoc
-     */
     protected function _construct(): void
     {
         $this->_init(FormModel::class, FormResource::class);

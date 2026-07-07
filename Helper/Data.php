@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Helper;
@@ -62,9 +61,6 @@ class Data extends AbstractHelper
         $this->filesystem = $filesystem;
     }
 
-    /**
-     * Get system config value
-     */
     public function getConfig(string $path, ?int $storeId = null): ?string
     {
         return $this->scopeConfig->getValue(
@@ -74,9 +70,6 @@ class Data extends AbstractHelper
         );
     }
 
-    /**
-     * Check if module is enabled
-     */
     public function isEnabled(?int $storeId = null): bool
     {
         return $this->scopeConfig->isSetFlag(
@@ -86,9 +79,6 @@ class Data extends AbstractHelper
         );
     }
 
-    /**
-     * Check if AJAX submission is enabled
-     */
     public function isAjaxEnabled(?int $storeId = null): bool
     {
         return $this->scopeConfig->isSetFlag(
@@ -98,65 +88,43 @@ class Data extends AbstractHelper
         );
     }
 
-    /**
-     * Get allowed file extensions as array
-     */
     public function getAllowedExtensions(?int $storeId = null): array
     {
         $extensions = $this->getConfig(self::XML_PATH_ALLOWED_EXTENSIONS, $storeId);
         if (!$extensions) {
-            // Safe default (never empty, never allow-all). `txt`/`zip` were
-            // dropped: uploads are served from a public pub/media URL, so a
-            // benign-but-arbitrary file (defacement/phishing) must not be a
-            // default-accepted type. Add them back per-store only if needed.
             return ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv'];
         }
 
         return array_map('trim', explode(',', $extensions));
     }
 
-    /**
-     * Get max file size in bytes
-     */
     public function getMaxFileSize(?int $storeId = null): int
     {
         $sizeMb = (int) $this->getConfig(self::XML_PATH_MAX_FILE_SIZE, $storeId);
         if ($sizeMb <= 0) {
-            $sizeMb = 5; // Default 5MB
+            $sizeMb = 5;
         }
 
         return $sizeMb * 1024 * 1024;
     }
 
-    /**
-     * Get upload directory path
-     */
     public function getUploadDir(): string
     {
         $mediaDir = $this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->getAbsolutePath();
         return $mediaDir . self::UPLOAD_DIR;
     }
 
-    /**
-     * Get relative upload path for media URLs
-     */
     public function getUploadRelativePath(): string
     {
         return self::UPLOAD_DIR;
     }
 
-    /**
-     * Get frontend URL for a form
-     */
     public function getFormUrl(Form $form): string
     {
         $baseUrl = $this->storeManager->getStore()->getBaseUrl();
         return rtrim($baseUrl, '/') . '/pages/' . $form->getData('url_key');
     }
 
-    /**
-     * Send admin notification email
-     */
     public function sendAdminNotification(Form $form, Submission $submission, array $values): void
     {
         $adminEmail = $form->getData('admin_email');
@@ -169,7 +137,6 @@ class Data extends AbstractHelper
         $templateId = $this->getConfig(self::XML_PATH_ADMIN_EMAIL_TEMPLATE, $storeId)
             ?: 'panth_dynamicforms_email_admin_email_template';
 
-        // Build HTML table of submitted fields
         $fieldsHtml = '<table cellpadding="0" cellspacing="0" border="0" width="100%">';
         foreach ($values as $value) {
             $label = htmlspecialchars($value['label'] ?? '', ENT_QUOTES);
@@ -236,9 +203,6 @@ class Data extends AbstractHelper
         }
     }
 
-    /**
-     * Send auto-reply email to customer
-     */
     public function sendAutoReply(Form $form, Submission $submission): void
     {
         if (!$form->getData('auto_reply_enabled') || !$submission->getData('customer_email')) {
@@ -279,17 +243,11 @@ class Data extends AbstractHelper
         }
     }
 
-    /**
-     * Get human-readable field type label
-     */
     public function getFieldTypeLabel(string $type): string
     {
         return self::FIELD_TYPE_LABELS[$type] ?? ucfirst($type);
     }
 
-    /**
-     * Get media URL for uploaded file
-     */
     public function getFileUrl(string $filename): string
     {
         $baseMediaUrl = $this->storeManager->getStore()->getBaseUrl(

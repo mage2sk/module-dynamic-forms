@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Block\Widget;
@@ -26,14 +25,8 @@ class DynamicForm extends Template implements BlockInterface
     private ThemeHelper $themeHelper;
     private FormKey $formKey;
 
-    /**
-     * Cached form instance
-     */
     private ?\Panth\DynamicForms\Model\Form $form = null;
 
-    /**
-     * Cached fields collection
-     */
     private ?array $fields = null;
 
     public function __construct(
@@ -59,31 +52,23 @@ class DynamicForm extends Template implements BlockInterface
         $this->formKey = $formKey;
     }
 
-    /**
-     * Get form key value for CSRF protection
-     */
     public function getFormKey(): string
     {
         return $this->formKey->getFormKey();
     }
 
-    /**
-     * Get the form model
-     */
     public function getForm(): ?\Panth\DynamicForms\Model\Form
     {
         if ($this->form !== null) {
             return $this->form;
         }
 
-        // First check registry (set by View controller)
         $registeredForm = $this->registry->registry('current_dynamic_form');
         if ($registeredForm) {
             $this->form = $registeredForm;
             return $this->form;
         }
 
-        // Then check widget parameter
         $formId = (int) $this->getData('form_id');
         if (!$formId) {
             return null;
@@ -100,9 +85,6 @@ class DynamicForm extends Template implements BlockInterface
         return $this->form;
     }
 
-    /**
-     * Get active fields sorted by sort_order
-     */
     public function getFields(): array
     {
         if ($this->fields !== null) {
@@ -124,25 +106,16 @@ class DynamicForm extends Template implements BlockInterface
         return $this->fields;
     }
 
-    /**
-     * Get form submission URL
-     */
     public function getFormUrl(): string
     {
         return $this->getUrl('dynamicforms/form/submit');
     }
 
-    /**
-     * Get file upload URL
-     */
     public function getUploadUrl(): string
     {
         return $this->getUrl('dynamicforms/form/upload');
     }
 
-    /**
-     * Get form configuration as JSON for JS initialization
-     */
     public function getFormConfig(): string
     {
         $form = $this->getForm();
@@ -168,17 +141,11 @@ class DynamicForm extends Template implements BlockInterface
         return json_encode($config, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT);
     }
 
-    /**
-     * Detect if current theme is Hyva
-     */
     public function isHyvaTheme(): bool
     {
         return $this->themeHelper->isHyva();
     }
 
-    /**
-     * Render CMS content (processes directives like {{widget}}, {{block}}, etc.)
-     */
     public function renderCmsContent(?string $content): string
     {
         if (!$content) {
@@ -192,9 +159,6 @@ class DynamicForm extends Template implements BlockInterface
         }
     }
 
-    /**
-     * Get field options as array (decoded from JSON)
-     */
     public function getFieldOptions(\Panth\DynamicForms\Model\Field $field): array
     {
         $options = $field->getData('options');
@@ -206,9 +170,6 @@ class DynamicForm extends Template implements BlockInterface
         return is_array($decoded) ? $decoded : [];
     }
 
-    /**
-     * Get field validation rules as array
-     */
     public function getFieldValidationRules(\Panth\DynamicForms\Model\Field $field): array
     {
         $rules = $field->getData('validation_rules');
@@ -220,9 +181,6 @@ class DynamicForm extends Template implements BlockInterface
         return is_array($decoded) ? $decoded : [];
     }
 
-    /**
-     * Get CSS class for field width
-     */
     public function getWidthClass(string $width): string
     {
         $map = [
@@ -234,9 +192,6 @@ class DynamicForm extends Template implements BlockInterface
         return $map[$width] ?? 'panth-df-field--full';
     }
 
-    /**
-     * Get the form style configuration
-     */
     public function getFormStyle(): array
     {
         $form = $this->getForm();
@@ -253,12 +208,8 @@ class DynamicForm extends Template implements BlockInterface
         return is_array($decoded) ? $decoded : [];
     }
 
-    /**
-     * Whether to show the title
-     */
     public function showTitle(): bool
     {
-        // Widget parameter can override, default to true
         $showTitle = $this->getData('show_title');
         if ($showTitle !== null) {
             return (bool) $showTitle;
@@ -266,9 +217,6 @@ class DynamicForm extends Template implements BlockInterface
         return true;
     }
 
-    /**
-     * Whether to show the description
-     */
     public function showDescription(): bool
     {
         $showDescription = $this->getData('show_description');
@@ -278,9 +226,6 @@ class DynamicForm extends Template implements BlockInterface
         return true;
     }
 
-    /**
-     * Auto-select template based on theme
-     */
     protected function _toHtml(): string
     {
         if (!$this->helper->isEnabled()) {
@@ -292,7 +237,6 @@ class DynamicForm extends Template implements BlockInterface
             return '';
         }
 
-        // Auto-select template if not explicitly set
         if (!$this->getTemplate()) {
             if ($this->isHyvaTheme()) {
                 $this->setTemplate('Panth_DynamicForms::widget/form_hyva.phtml');
@@ -304,18 +248,12 @@ class DynamicForm extends Template implements BlockInterface
         return parent::_toHtml();
     }
 
-    /**
-     * Get unique form identifier for Alpine component
-     */
     public function getFormIdentifier(): string
     {
         $form = $this->getForm();
         return 'dynamicForm_' . ($form ? $form->getId() : '0');
     }
 
-    /**
-     * Get fields data as JSON for JS initialization
-     */
     public function getFieldsJson(): string
     {
         $fieldsData = [];

@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Ui\DataProvider;
@@ -48,7 +47,6 @@ class FormDataProvider extends AbstractDataProvider
             $formData = $form->getData();
             $formId = (int) $form->getId();
 
-            // Load fields for this form
             $fieldCollection = $this->fieldCollectionFactory->create();
             $fieldCollection->addFieldToFilter('form_id', $formId);
             $fieldCollection->setOrder('sort_order', 'ASC');
@@ -57,7 +55,6 @@ class FormDataProvider extends AbstractDataProvider
             foreach ($fieldCollection as $field) {
                 $fieldData = $field->getData();
 
-                // Parse JSON fields for the builder
                 if (!empty($fieldData['options']) && is_string($fieldData['options'])) {
                     try {
                         $fieldData['options'] = $this->json->unserialize($fieldData['options']);
@@ -79,13 +76,11 @@ class FormDataProvider extends AbstractDataProvider
 
             $formData['fields_json'] = $this->json->serialize($fields);
 
-            // Set widget usage info with actual form ID
             $formData['widget_usage_info'] = 'Form ID: ' . $formId;
 
             $this->loadedData[$formId] = $formData;
         }
 
-        // Check for persisted data (after validation error)
         $data = $this->dataPersistor->get('panth_dynamicforms_form');
         if (!empty($data)) {
             $form = $this->collection->getNewEmptyItem();

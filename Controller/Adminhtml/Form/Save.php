@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Controller\Adminhtml\Form;
@@ -85,27 +84,22 @@ class Save extends Action
             $this->logger->info('DynamicForms Save: Creating new form');
         }
 
-        // Extract fields JSON before setting form data
         $fieldsJson = $data['fields_json'] ?? '[]';
         $this->logger->info('DynamicForms Save: Fields JSON', [
             'fields_json_length' => strlen($fieldsJson),
             'fields_json_preview' => mb_substr($fieldsJson, 0, 500),
         ]);
 
-        // Handle form_type
         $formType = $data['form_type'] ?? 'page';
 
-        // Handle url_key based on form_type
         $urlKey = isset($data['url_key']) ? trim((string) $data['url_key']) : '';
 
-        // If widget-only, clear URL key (not needed)
         if ($formType === 'widget') {
             $data['url_key'] = null;
             $urlKey = '';
             $this->logger->info('DynamicForms Save: Widget-only form, url_key cleared');
         }
 
-        // If page or both type, URL key is required
         if (in_array($formType, ['page', 'both']) && $urlKey === '') {
             $this->messageManager->addErrorMessage(__('URL Key is required for forms with a standalone page.'));
             $this->dataPersistor->set('panth_dynamicforms_form', $data);
@@ -119,13 +113,11 @@ class Save extends Action
             $data['url_key'] = null;
             $this->logger->info('DynamicForms Save: url_key is empty, setting to NULL');
         } else {
-            // Sanitize url_key
             $urlKey = strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '-', $urlKey));
             $urlKey = preg_replace('/-+/', '-', trim($urlKey, '-'));
             $data['url_key'] = $urlKey;
             $this->logger->info('DynamicForms Save: Sanitized url_key', ['url_key' => $urlKey]);
 
-            // Validate url_key uniqueness
             try {
                 $this->validateUrlKeyUniqueness($urlKey, $formId);
             } catch (LocalizedException $e) {
@@ -142,17 +134,14 @@ class Save extends Action
             }
         }
 
-        // Remove keys that should not be saved to the form model
         unset(
             $data['fields_json'],
             $data['form_key'],
             $data['fields_note']
         );
 
-        // Set form data
         $model->setData($data);
 
-        // Ensure form_id is preserved for existing forms
         if ($formId) {
             $model->setId($formId);
         }
@@ -170,7 +159,6 @@ class Save extends Action
             $savedFormId = (int) $model->getId();
             $this->logger->info('DynamicForms Save: Form saved successfully', ['form_id' => $savedFormId]);
 
-            // Process fields
             $this->processFields($savedFormId, $fieldsJson);
 
             $this->messageManager->addSuccessMessage(__('The form has been saved.'));
@@ -210,12 +198,8 @@ class Save extends Action
         return $resultRedirect->setPath('*/*/new');
     }
 
-    /**
-     * Validate that the url_key is unique across forms and URL rewrites
-     */
     private function validateUrlKeyUniqueness(string $urlKey, int $currentFormId): void
     {
-        // Check uniqueness in panth_dynamic_form table
         $connection = $this->formResource->getConnection();
         $select = $connection->select()
             ->from($this->formResource->getMainTable(), ['form_id'])
@@ -232,7 +216,6 @@ class Save extends Action
             );
         }
 
-        // Check uniqueness in url_rewrite table
         $urlRewriteTable = $connection->getTableName('url_rewrite');
         $select = $connection->select()
             ->from($urlRewriteTable, ['url_rewrite_id'])
@@ -247,9 +230,6 @@ class Save extends Action
         }
     }
 
-    /**
-     * Process form fields: add new, update existing, delete removed
-     */
     private function processFields(int $formId, string $fieldsJson): void
     {
         $this->logger->info('DynamicForms Save: Processing fields', ['form_id' => $formId]);
@@ -271,7 +251,6 @@ class Save extends Action
 
         $this->logger->info('DynamicForms Save: Field count', ['count' => count($fields)]);
 
-        // Get existing field IDs for this form
         $existingCollection = $this->fieldCollectionFactory->create();
         $existingCollection->addFieldToFilter('form_id', $formId);
         $existingFieldIds = [];
@@ -283,7 +262,6 @@ class Save extends Action
             'existing_field_ids' => $existingFieldIds,
         ]);
 
-        // Track which field IDs are in the submitted data
         $submittedFieldIds = [];
 
         foreach ($fields as $sortOrder => $fieldData) {
@@ -292,7 +270,6 @@ class Save extends Action
             $fieldModel = $this->fieldFactory->create();
 
             if ($fieldId && in_array($fieldId, $existingFieldIds, true)) {
-                // Update existing field
                 $this->fieldResource->load($fieldModel, $fieldId);
                 $submittedFieldIds[] = $fieldId;
                 $this->logger->info('DynamicForms Save: Updating existing field', ['field_id' => $fieldId]);
@@ -303,7 +280,6 @@ class Save extends Action
                 ]);
             }
 
-            // Set field data
             $fieldModel->setData('form_id', $formId);
             $fieldModel->setData('field_type', $fieldData['field_type'] ?? 'text');
             $fieldModel->setData('label', $fieldData['label'] ?? '');
@@ -316,7 +292,6 @@ class Save extends Action
             $fieldModel->setData('sort_order', (int) ($fieldData['sort_order'] ?? $sortOrder));
             $fieldModel->setData('is_active', (int) ($fieldData['is_active'] ?? 1));
 
-            // Handle JSON fields
             if (isset($fieldData['options'])) {
                 $fieldModel->setData(
                     'options',
@@ -350,7 +325,6 @@ class Save extends Action
             }
         }
 
-        // Delete fields that were removed
         $fieldsToDelete = array_diff($existingFieldIds, $submittedFieldIds);
         if (!empty($fieldsToDelete)) {
             $this->logger->info('DynamicForms Save: Deleting removed fields', [

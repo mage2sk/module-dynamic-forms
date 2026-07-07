@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Block\Adminhtml\Form;
@@ -56,7 +55,6 @@ class FieldBuilder extends Template
         foreach ($collection as $field) {
             $fieldData = $field->getData();
 
-            // Parse JSON fields
             if (!empty($fieldData['options']) && is_string($fieldData['options'])) {
                 try {
                     $fieldData['options'] = $this->json->unserialize($fieldData['options']);
@@ -93,9 +91,6 @@ class FieldBuilder extends Template
         return $this->json->serialize($this->fieldWidthSource->toOptionArray());
     }
 
-    /**
-     * Types that require options configuration
-     */
     public function getOptionFieldTypes(): string
     {
         return $this->json->serialize(['select', 'multiselect', 'checkbox', 'radio']);

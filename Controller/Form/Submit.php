@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Controller\Form;
@@ -77,7 +76,6 @@ class Submit implements HttpPostActionInterface
     {
         $result = $this->jsonFactory->create();
 
-        // Validate form key
         if (!$this->formKeyValidator->validate($this->request)) {
             return $result->setData([
                 'success' => false,
@@ -93,7 +91,6 @@ class Submit implements HttpPostActionInterface
             ]);
         }
 
-        // Load form
         $form = $this->formFactory->create();
         $this->formResource->load($form, $formId);
 
@@ -104,7 +101,6 @@ class Submit implements HttpPostActionInterface
             ]);
         }
 
-        // Load fields
         $fieldCollection = $this->fieldCollectionFactory->create();
         $fieldCollection->addFieldToFilter('form_id', $formId)
             ->addFieldToFilter('is_active', 1)
@@ -114,28 +110,23 @@ class Submit implements HttpPostActionInterface
         $errors = [];
         $submissionValues = [];
 
-        /** @var \Panth\DynamicForms\Model\Field $field */
         foreach ($fieldCollection as $field) {
             $fieldName = $field->getData('name');
             $fieldType = $field->getData('field_type');
             $value = $postData[$fieldName] ?? '';
 
-            // Handle array values (checkbox, multiselect)
             if (is_array($value)) {
                 $value = implode(', ', $value);
             }
 
             $value = trim((string) $value);
 
-            // Required validation
             if ($field->getData('is_required') && $value === '' && $fieldType !== 'file') {
                 $errors[$fieldName] = __('%1 is required.', $field->getData('label'));
                 continue;
             }
 
-            // File fields: value is the filename from AJAX upload (sent as the field name)
             if ($fieldType === 'file') {
-                // The JS sends uploaded filename as fd.append(fieldName, filename)
                 $fileValue = $postData[$fieldName] ?? '';
                 if (is_array($fileValue)) {
                     $fileValue = '';
@@ -145,7 +136,7 @@ class Submit implements HttpPostActionInterface
                     $errors[$fieldName] = __('%1 is required.', $field->getData('label'));
                     continue;
                 }
-                // Make it a clickable URL for admin view
+
                 if ($fileValue) {
                     $value = $this->helper->getFileUrl($fileValue);
                 } else {
@@ -153,7 +144,6 @@ class Submit implements HttpPostActionInterface
                 }
             }
 
-            // Type-specific validation
             $validationRules = $field->getData('validation_rules');
             if ($validationRules) {
                 $rules = json_decode($validationRules, true);
@@ -166,7 +156,6 @@ class Submit implements HttpPostActionInterface
                 }
             }
 
-            // Email format validation
             if ($fieldType === 'email' && $value !== '') {
                 if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                     $errors[$fieldName] = __('Please enter a valid email address.');
@@ -174,7 +163,6 @@ class Submit implements HttpPostActionInterface
                 }
             }
 
-            // Phone format validation
             if ($fieldType === 'phone' && $value !== '') {
                 if (!preg_match('/^[\d\s\-\+\(\)\.]{7,20}$/', $value)) {
                     $errors[$fieldName] = __('Please enter a valid phone number.');
@@ -182,7 +170,6 @@ class Submit implements HttpPostActionInterface
                 }
             }
 
-            // Number validation
             if ($fieldType === 'number' && $value !== '') {
                 if (!is_numeric($value)) {
                     $errors[$fieldName] = __('Please enter a valid number.');
@@ -207,7 +194,6 @@ class Submit implements HttpPostActionInterface
         }
 
         try {
-            // Determine customer info
             $customerEmail = '';
             $customerName = '';
             $customerId = null;
@@ -219,7 +205,6 @@ class Submit implements HttpPostActionInterface
                 $customerId = (int) $customer->getId();
             }
 
-            // Check if any field value is an email (for guest submissions)
             if (!$customerEmail) {
                 foreach ($submissionValues as $sv) {
                     if ($sv['type'] === 'email' && $sv['value']) {
@@ -229,7 +214,6 @@ class Submit implements HttpPostActionInterface
                 }
             }
 
-            // Check for name field
             if (!$customerName) {
                 foreach ($submissionValues as $sv) {
                     $labelLower = strtolower($sv['label']);
@@ -240,7 +224,6 @@ class Submit implements HttpPostActionInterface
                 }
             }
 
-            // Create submission
             $submission = $this->submissionFactory->create();
             $submission->setData([
                 'form_id' => $formId,
@@ -253,7 +236,6 @@ class Submit implements HttpPostActionInterface
             ]);
             $this->submissionResource->save($submission);
 
-            // Save submission values
             $emailValues = [];
             foreach ($submissionValues as $sv) {
                 $submissionValue = $this->submissionValueFactory->create();
@@ -273,10 +255,8 @@ class Submit implements HttpPostActionInterface
                 ];
             }
 
-            // Send admin notification
             $this->helper->sendAdminNotification($form, $submission, $emailValues);
 
-            // Send auto-reply
             $this->helper->sendAutoReply($form, $submission);
 
             $successMessage = $form->getData('success_message')
@@ -301,9 +281,6 @@ class Submit implements HttpPostActionInterface
         }
     }
 
-    /**
-     * Validate a field value against custom rules
-     */
     private function validateFieldValue(string $value, array $rules, string $label): ?string
     {
         if (isset($rules['min_length']) && mb_strlen($value) < (int) $rules['min_length']) {

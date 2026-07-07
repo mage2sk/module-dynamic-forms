@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Controller\Form;
@@ -60,12 +59,8 @@ class Upload implements HttpPostActionInterface
         $fieldName = $this->request->getParam('field_name', 'file');
 
         try {
-            // The JS sends file as 'file' in FormData
             $uploader = $this->uploaderFactory->create(['fileId' => 'file']);
 
-            // Hard executable deny-list — a second gate independent of the
-            // admin-configurable allowlist, so a misconfigured allowed-extensions
-            // field can never permit web-executable uploads (.php/.phtml/.sh/...).
             $originalName = (isset($_FILES['file']['name']) && is_string($_FILES['file']['name']))
                 ? $_FILES['file']['name']
                 : '';
@@ -73,13 +68,11 @@ class Upload implements HttpPostActionInterface
                 $this->uploadExtensionPolicy->assertSafeExtension($originalName);
             }
 
-            // Set allowed extensions
             $allowedExtensions = $this->helper->getAllowedExtensions();
             $uploader->setAllowedExtensions($allowedExtensions);
             $uploader->setAllowRenameFiles(true);
             $uploader->setFilesDispersion(false);
 
-            // Validate file size
             $maxSize = $this->helper->getMaxFileSize();
             $fileSize = $uploader->getFileSize();
             if ($fileSize > $maxSize) {
@@ -90,7 +83,6 @@ class Upload implements HttpPostActionInterface
                 ]);
             }
 
-            // Create upload directory if it doesn't exist
             $mediaDirectory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
             $uploadPath = $this->helper->getUploadRelativePath();
 
@@ -123,7 +115,6 @@ class Upload implements HttpPostActionInterface
 
             $message = __('An error occurred during file upload.');
 
-            // Provide more specific error messages
             if (strpos($e->getMessage(), 'extension') !== false) {
                 $message = __('File type is not allowed. Allowed types: %1', implode(', ', $this->helper->getAllowedExtensions()));
             } elseif (strpos($e->getMessage(), 'was not uploaded') !== false) {

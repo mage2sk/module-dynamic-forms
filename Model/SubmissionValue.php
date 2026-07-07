@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Model;
@@ -9,14 +8,8 @@ use Panth\DynamicForms\Model\ResourceModel\SubmissionValue as SubmissionValueRes
 
 class SubmissionValue extends AbstractModel
 {
-    /**
-     * @var string
-     */
     protected $_eventPrefix = 'panth_dynamic_form_submission_value';
 
-    /**
-     * @inheritdoc
-     */
     protected function _construct(): void
     {
         $this->_init(SubmissionValueResource::class);

@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Panth\DynamicForms\Controller\Form;
@@ -59,17 +58,14 @@ class View implements HttpGetActionInterface
             return $this->forwardFactory->create()->forward('noroute');
         }
 
-        // Register form for use in blocks
         $this->registry->register('current_dynamic_form', $form);
 
-        /** @var \Magento\Framework\View\Result\Page $page */
         $page = $this->pageFactory->create();
 
         $title = $form->getData('title') ?: $form->getData('name');
         $metaTitle = $form->getData('meta_title');
         $page->getConfig()->getTitle()->set($metaTitle ?: $title);
 
-        // Set meta description
         $metaDescription = $form->getData('meta_description');
         if (!$metaDescription) {
             $description = $form->getData('description');
@@ -79,17 +75,14 @@ class View implements HttpGetActionInterface
             $page->getConfig()->setDescription($metaDescription);
         }
 
-        // Set meta keywords
         $metaKeywords = $form->getData('meta_keywords');
         if ($metaKeywords) {
             $page->getConfig()->setKeywords($metaKeywords);
         }
 
-        // Set meta robots
         $metaRobots = $form->getData('meta_robots') ?: 'index,follow';
         $page->getConfig()->setRobots($metaRobots);
 
-        // Set canonical URL
         $urlKey = $form->getData('url_key');
         if ($urlKey) {
             $baseUrl = rtrim($this->request->getDistroBaseUrl(), '/');
