@@ -4,6 +4,11 @@ All notable changes to this extension are documented here. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.9]
+
+### Changed
+- Replaced typographic characters (em dashes, curly quotes, ellipsis) with plain ASCII punctuation. No functional changes.
+
 ## [1.0.8]
 
 ### Changed
@@ -16,11 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   table (General, Email, Display, Styling groups), correct field type count (13),
   live product URL canonical, and gold-template section order.
 
-## [1.0.6] — Upload extension hardening
+## [1.0.6] - Upload extension hardening
 
 ### Added
 - `Controller/Form/Upload` now calls `Panth\Core\Security\UploadExtensionPolicy::assertSafeExtension()`
-  before saving — a hard executable deny-list (`php`, `phtml`, `sh`, `jsp`, …)
+  before saving - a hard executable deny-list (`php`, `phtml`, `sh`, `jsp`, ...)
   independent of the admin-configurable allowed-extensions field. Requires
   `mage2kishan/module-core ^1.0.17`.
 
@@ -32,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   the admin field. Stores that already configured their own list are
   unaffected.
 
-## [1.0.5] — 2026-06-14
+## [1.0.5] - 2026-06-14
 
 ### Fixed
 
@@ -46,9 +51,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   already handled in `admin_notification.html`. `auto_reply_body` is
   admin-authored per form, so `|raw` is appropriate.
 
-## [1.0.0] — Initial release
+## [1.0.0] - Initial release
 
-### Added — Admin form builder
+### Added - Admin form builder
 - Full CRUD interface for creating and managing dynamic forms
 - Drag-and-drop field builder with 13 field types: text, textarea,
   email, phone, number, date, select, multi-select, checkbox, radio,
@@ -59,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Field options builder for select/radio/checkbox/multi-select types
 - Custom validation rules per field (min/max length, pattern, etc.)
 
-### Added — Frontend rendering
+### Added - Frontend rendering
 - Hyva theme support using Alpine.js (auto-detected)
 - Luma theme support using vanilla JavaScript (auto-detected)
 - AJAX form submission with client-side and server-side validation
@@ -67,13 +72,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Responsive CSS grid layout with CSS custom properties for theming
 - Success message display with optional redirect after submission
 
-### Added — Email notifications
+### Added - Email notifications
 - Admin notification email with formatted HTML table of all submitted fields
 - CC/BCC support for admin notifications
 - Customer auto-reply email (configurable per form)
 - Configurable email sender identity and templates
 
-### Added — Submission management
+### Added - Submission management
 - Per-form submission listing with filterable grid
 - Submission detail view with all field values
 - Status workflow: New, Read, Replied, Closed
@@ -81,20 +86,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Admin notes per submission (AJAX save)
 - Mass delete action for bulk cleanup
 
-### Added — SEO and URL routing
+### Added - SEO and URL routing
 - Custom URL keys for standalone form pages (e.g., /pages/contact-us)
 - URL key uniqueness validation (across forms and URL rewrites)
 - Meta title, description, keywords, and robots per form
 - Automatic canonical URL tag
 - JSON-LD structured data (WebPage + ContactPage schema)
 
-### Added — Widget support
+### Added - Widget support
 - Embeddable via Page Builder / WYSIWYG Insert Widget dialog
 - Widget parameters: form_id, show_title, show_description
 - Direct widget code support for CMS pages and blocks
 - CMS content above/below the form (Page Builder compatible)
 
-### Added — Configuration
+### Added - Configuration
 - Global enable/disable switch
 - Configurable allowed file extensions and max file size
 - Admin email template selection

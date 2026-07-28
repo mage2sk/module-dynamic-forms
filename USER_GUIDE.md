@@ -1,4 +1,4 @@
-# Panth Dynamic Forms — User Guide
+# Panth Dynamic Forms - User Guide
 
 This guide walks a Magento store administrator through every screen
 and setting of the Panth Dynamic Forms extension. No coding required.
@@ -50,9 +50,9 @@ bin/magento cache:flush
 
 After installation, confirm:
 
-1. **Configuration page exists** — Stores > Configuration > Panth Extensions > Dynamic Forms
-2. **Admin menu exists** — Panth > Dynamic Forms > Manage Forms
-3. **Module is enabled** — `bin/magento module:status Panth_DynamicForms`
+1. **Configuration page exists** - Stores > Configuration > Panth Extensions > Dynamic Forms
+2. **Admin menu exists** - Panth > Dynamic Forms > Manage Forms
+3. **Module is enabled** - `bin/magento module:status Panth_DynamicForms`
 
 ---
 
@@ -151,9 +151,9 @@ Click the X button on any field. The field is removed when you save.
 
 ### Field width / grid layout
 
-- **Full** — 100% width (1 column)
-- **Half** — 50% width (2 columns side by side)
-- **Third** — 33% width (3 columns side by side)
+- **Full** - 100% width (1 column)
+- **Half** - 50% width (2 columns side by side)
+- **Third** - 33% width (3 columns side by side)
 
 On mobile, all fields stack to full width automatically.
 
