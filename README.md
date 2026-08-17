@@ -135,6 +135,7 @@ Performance • SEO • Adobe Commerce Cloud
 ### Email Notifications and Auto-Reply
 - **Admin notification** goes to the email address set per form, with CC and BCC support.
 - **Auto-reply email** sent to the submitter's email field, with an admin-configurable subject and body.
+- **Personalization placeholders** in the auto-reply subject and body: `{{name}}`, `{{email}}`, `{{form_name}}`, and `{{store_name}}` are replaced with the submitter's name, the submitter's email address, the form title, and the store name. For example, a body starting with `Hi {{name}},` becomes `Hi Alex,` in the email the shopper receives. `{{customer_name}}` and `{{customer_email}}` work as aliases.
 - **Email sender identity and template** are configurable per scope (default, website, store view).
 
 ### Submission Management
@@ -294,7 +295,7 @@ Per-form email settings (admin notification email, CC, BCC, auto-reply subject a
 1. Go to **Admin -> Panth Infotech -> Dynamic Forms -> Manage Forms -> Add New Form**.
 2. Set the form title, URL key, and success message. Choose whether the form lives on a standalone page, a widget, or both.
 3. Drag field types from the field palette onto the form canvas. Configure each field's label, placeholder, required flag, and validation rules.
-4. In the **Email** tab on the form, enter the admin notification address and optionally configure the auto-reply subject and body.
+4. In the **Email** tab on the form, enter the admin notification address and optionally configure the auto-reply subject and body. Both support the `{{name}}`, `{{email}}`, `{{form_name}}`, and `{{store_name}}` placeholders, so the reply can open with `Hi {{name}},`.
 5. Save the form.
 6. Embed the form on any page via the **Widget UI** (Content -> Widgets), via layout XML, or via a CMS shortcode.
 7. When a shopper submits the form, the submission is saved to the `panth_dynamic_form_submission` table, an admin notification email is sent, and an auto-reply is sent to the shopper if enabled.
@@ -315,6 +316,9 @@ Yes. Files go through a two-layer check: the admin-configured allowed-extensions
 
 ### Can I translate form labels?
 Yes. All labels, placeholders, and system messages use Magento's `__()` function, so you can translate them from a theme or language pack.
+
+### Can the auto-reply greet the customer by name?
+Yes. Write `Hi {{name}},` in the auto-reply body (or subject) and the module replaces it with the submitter's name from the form. `{{email}}`, `{{form_name}}`, and `{{store_name}}` are available too.
 
 ### Does it work with Magento's built-in reCAPTCHA?
 The module has its own reCAPTCHA v3 integration configured in General Settings. Enable it and enter your Google reCAPTCHA site and secret keys.

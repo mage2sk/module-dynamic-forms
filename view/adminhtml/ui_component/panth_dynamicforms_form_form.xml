@@ -336,6 +336,7 @@ For advanced usage, you can also paste this widget code directly:
             <settings>
                 <dataType>text</dataType>
                 <label translate="true">Auto Reply Subject</label>
+                <notice translate="true">Supports placeholders: {{name}}, {{email}}, {{form_name}}, {{store_name}}.</notice>
             </settings>
         </field>
 
@@ -343,7 +344,7 @@ For advanced usage, you can also paste this widget code directly:
             <settings>
                 <dataType>text</dataType>
                 <label translate="true">Auto Reply Body</label>
-                <notice translate="true">The body of the auto-reply email sent to the customer.</notice>
+                <notice translate="true">The body of the auto-reply email sent to the customer. Supports placeholders: {{name}}, {{email}}, {{form_name}}, {{store_name}}.</notice>
             </settings>
         </field>
     </fieldset>

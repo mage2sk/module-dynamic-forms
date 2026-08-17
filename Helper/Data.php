@@ -214,11 +214,35 @@ class Data extends AbstractHelper
         $templateId = $this->getConfig(self::XML_PATH_AUTO_REPLY_TEMPLATE, $storeId)
             ?: 'panth_dynamicforms_email_autoreply_email_template';
 
+        $formName = (string) ($form->getData('title') ?: $form->getData('name'));
+        $storeName = (string) $this->storeManager->getStore()->getName();
+        $customerName = (string) ($submission->getData('customer_name') ?: 'Customer');
+        $customerEmail = (string) $submission->getData('customer_email');
+
+        $placeholders = [
+            'name' => $customerName,
+            'customer_name' => $customerName,
+            'email' => $customerEmail,
+            'customer_email' => $customerEmail,
+            'form_name' => $formName,
+            'store_name' => $storeName,
+        ];
+
         $templateVars = [
-            'form_title' => $form->getData('title') ?: $form->getData('name'),
-            'customer_name' => $submission->getData('customer_name') ?: 'Customer',
-            'auto_reply_subject' => $form->getData('auto_reply_subject'),
-            'auto_reply_body' => $form->getData('auto_reply_body'),
+            'form_name' => $formName,
+            'form_title' => $formName,
+            'customer_name' => $customerName,
+            'store_name' => $storeName,
+            'auto_reply_subject' => $this->applyPlaceholders(
+                (string) $form->getData('auto_reply_subject'),
+                $placeholders,
+                false
+            ),
+            'auto_reply_body' => $this->applyPlaceholders(
+                (string) $form->getData('auto_reply_body'),
+                $placeholders,
+                true
+            ),
         ];
 
         $this->inlineTranslation->suspend();
@@ -241,6 +265,26 @@ class Data extends AbstractHelper
         } finally {
             $this->inlineTranslation->resume();
         }
+    }
+
+    private function applyPlaceholders(string $text, array $placeholders, bool $escapeHtml): string
+    {
+        if ($text === '' || !str_contains($text, '{{')) {
+            return $text;
+        }
+
+        return (string) preg_replace_callback(
+            '/\{\{\s*([a-z_]+)\s*\}\}/i',
+            static function (array $match) use ($placeholders, $escapeHtml): string {
+                $key = strtolower($match[1]);
+                if (!array_key_exists($key, $placeholders)) {
+                    return $match[0];
+                }
+                $value = (string) $placeholders[$key];
+                return $escapeHtml ? htmlspecialchars($value, ENT_QUOTES) : $value;
+            },
+            $text
+        );
     }
 
     public function getFieldTypeLabel(string $type): string

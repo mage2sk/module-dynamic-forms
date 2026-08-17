@@ -4,6 +4,22 @@ All notable changes to this extension are documented here. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.10] - 2026-08-17
+
+### Fixed
+- Auto-reply emails now receive the `form_name` and `store_name` template
+  variables, so the default template no longer renders a blank form name and
+  an empty signature. `form_title` is still provided for custom templates
+  that reference it.
+
+### Added
+- Placeholder personalization in the auto-reply subject and body: `{{name}}`,
+  `{{email}}`, `{{form_name}}`, and `{{store_name}}` (with `{{customer_name}}`
+  and `{{customer_email}}` as aliases) are replaced with the submitter's
+  values. Values substituted into the HTML body are escaped, and unknown
+  placeholders are left untouched. The admin form field notices and README
+  document the supported placeholders.
+
 ## [1.0.9]
 
 ### Changed
