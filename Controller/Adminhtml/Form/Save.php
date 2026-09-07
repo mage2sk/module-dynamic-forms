@@ -9,6 +9,7 @@ use Magento\Framework\App\Request\DataPersistorInterface;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
+use Panth\DynamicForms\Model\Form\SaveDataPreparer;
 use Panth\DynamicForms\Model\FormFactory;
 use Panth\DynamicForms\Model\FieldFactory;
 use Panth\DynamicForms\Model\ResourceModel\Form as FormResource;
@@ -28,6 +29,7 @@ class Save extends Action
     private DataPersistorInterface $dataPersistor;
     private Json $json;
     private LoggerInterface $logger;
+    private SaveDataPreparer $dataPreparer;
 
     public function __construct(
         Context $context,
@@ -38,7 +40,8 @@ class Save extends Action
         FieldCollectionFactory $fieldCollectionFactory,
         DataPersistorInterface $dataPersistor,
         Json $json,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        SaveDataPreparer $dataPreparer
     ) {
         parent::__construct($context);
         $this->formFactory = $formFactory;
@@ -49,6 +52,7 @@ class Save extends Action
         $this->dataPersistor = $dataPersistor;
         $this->json = $json;
         $this->logger = $logger;
+        $this->dataPreparer = $dataPreparer;
     }
 
     public function execute(): ResultInterface
@@ -56,20 +60,17 @@ class Save extends Action
         $resultRedirect = $this->resultRedirectFactory->create();
         $data = $this->getRequest()->getPostValue();
 
-        $this->logger->info('DynamicForms Save: Incoming POST data', [
-            'keys' => array_keys($data ?: []),
-            'form_id' => $data['form_id'] ?? 'not set',
-            'name' => $data['name'] ?? 'not set',
-            'url_key' => $data['url_key'] ?? 'not set',
-            'has_fields_json' => isset($data['fields_json']) ? 'yes' : 'no',
-        ]);
-
         if (!$data) {
-            $this->logger->warning('DynamicForms Save: No POST data received');
+            $this->logger->debug('DynamicForms Save: No POST data received');
             return $resultRedirect->setPath('*/*/');
         }
 
-        $formId = (int) ($data['form_id'] ?? 0);
+        $formId = $this->dataPreparer->getFormId($data);
+        $this->logger->debug('DynamicForms Save: Incoming request', [
+            'form_id' => $formId,
+            'has_fields_json' => isset($data['fields_json']),
+        ]);
+
         $model = $this->formFactory->create();
 
         if ($formId) {
@@ -79,28 +80,14 @@ class Save extends Action
                 $this->messageManager->addErrorMessage(__('This form no longer exists.'));
                 return $resultRedirect->setPath('*/*/');
             }
-            $this->logger->info('DynamicForms Save: Loaded existing form', ['form_id' => $formId]);
-        } else {
-            $this->logger->info('DynamicForms Save: Creating new form');
         }
 
-        $fieldsJson = $data['fields_json'] ?? '[]';
-        $this->logger->info('DynamicForms Save: Fields JSON', [
-            'fields_json_length' => strlen($fieldsJson),
-            'fields_json_preview' => mb_substr($fieldsJson, 0, 500),
-        ]);
+        $fieldsJson = (string) ($data['fields_json'] ?? '[]');
+        $formType = $this->dataPreparer->getFormType($data);
+        $urlKey = $this->dataPreparer->getUrlKey($data);
+        $data['url_key'] = $urlKey;
 
-        $formType = $data['form_type'] ?? 'page';
-
-        $urlKey = isset($data['url_key']) ? trim((string) $data['url_key']) : '';
-
-        if ($formType === 'widget') {
-            $data['url_key'] = null;
-            $urlKey = '';
-            $this->logger->info('DynamicForms Save: Widget-only form, url_key cleared');
-        }
-
-        if (in_array($formType, ['page', 'both']) && $urlKey === '') {
+        if ($this->dataPreparer->requiresUrlKey($formType) && $urlKey === '') {
             $this->messageManager->addErrorMessage(__('URL Key is required for forms with a standalone page.'));
             $this->dataPersistor->set('panth_dynamicforms_form', $data);
             if ($formId) {
@@ -109,15 +96,7 @@ class Save extends Action
             return $resultRedirect->setPath('*/*/new');
         }
 
-        if ($urlKey === '') {
-            $data['url_key'] = null;
-            $this->logger->info('DynamicForms Save: url_key is empty, setting to NULL');
-        } else {
-            $urlKey = strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '-', $urlKey));
-            $urlKey = preg_replace('/-+/', '-', trim($urlKey, '-'));
-            $data['url_key'] = $urlKey;
-            $this->logger->info('DynamicForms Save: Sanitized url_key', ['url_key' => $urlKey]);
-
+        if ($urlKey !== '') {
             try {
                 $this->validateUrlKeyUniqueness($urlKey, $formId);
             } catch (LocalizedException $e) {
@@ -134,32 +113,22 @@ class Save extends Action
             }
         }
 
-        unset(
-            $data['fields_json'],
-            $data['form_key'],
-            $data['fields_note']
-        );
-
-        $model->setData($data);
+        $model->setData($this->dataPreparer->prepare($data));
 
         if ($formId) {
             $model->setId($formId);
         }
 
-        $this->logger->info('DynamicForms Save: Model data before save', [
-            'model_data_keys' => array_keys($model->getData()),
-            'name' => $model->getData('name'),
-            'url_key' => $model->getData('url_key'),
-            'is_active' => $model->getData('is_active'),
-            'store_id' => $model->getData('store_id'),
-        ]);
+        $connection = $this->formResource->getConnection();
+        $connection->beginTransaction();
 
         try {
             $this->formResource->save($model);
             $savedFormId = (int) $model->getId();
-            $this->logger->info('DynamicForms Save: Form saved successfully', ['form_id' => $savedFormId]);
+            $this->logger->debug('DynamicForms Save: Form saved', ['form_id' => $savedFormId]);
 
             $this->processFields($savedFormId, $fieldsJson);
+            $connection->commit();
 
             $this->messageManager->addSuccessMessage(__('The form has been saved.'));
             $this->dataPersistor->clear('panth_dynamicforms_form');
@@ -170,12 +139,14 @@ class Save extends Action
 
             return $resultRedirect->setPath('*/*/');
         } catch (LocalizedException $e) {
+            $connection->rollBack();
             $this->logger->error('DynamicForms Save: LocalizedException', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
+            $connection->rollBack();
             $this->logger->critical('DynamicForms Save: Unexpected exception', [
                 'exception_class' => get_class($e),
                 'message' => $e->getMessage(),
@@ -232,24 +203,20 @@ class Save extends Action
 
     private function processFields(int $formId, string $fieldsJson): void
     {
-        $this->logger->info('DynamicForms Save: Processing fields', ['form_id' => $formId]);
-
         try {
             $fields = $this->json->unserialize($fieldsJson);
         } catch (\Exception $e) {
             $this->logger->error('DynamicForms Save: Failed to parse fields JSON', [
+                'form_id' => $formId,
                 'error' => $e->getMessage(),
-                'json_preview' => mb_substr($fieldsJson, 0, 500),
             ]);
             $fields = [];
         }
 
         if (!is_array($fields)) {
-            $this->logger->warning('DynamicForms Save: Parsed fields is not an array, resetting to empty');
+            $this->logger->debug('DynamicForms Save: Parsed fields is not an array, resetting to empty');
             $fields = [];
         }
-
-        $this->logger->info('DynamicForms Save: Field count', ['count' => count($fields)]);
 
         $existingCollection = $this->fieldCollectionFactory->create();
         $existingCollection->addFieldToFilter('form_id', $formId);
@@ -258,13 +225,19 @@ class Save extends Action
             $existingFieldIds[] = (int) $existingField->getId();
         }
 
-        $this->logger->info('DynamicForms Save: Existing fields', [
+        $this->logger->debug('DynamicForms Save: Processing fields', [
+            'form_id' => $formId,
+            'submitted_count' => count($fields),
             'existing_field_ids' => $existingFieldIds,
         ]);
 
         $submittedFieldIds = [];
 
         foreach ($fields as $sortOrder => $fieldData) {
+            if (!is_array($fieldData)) {
+                continue;
+            }
+
             $fieldId = isset($fieldData['field_id']) ? (int) $fieldData['field_id'] : 0;
 
             $fieldModel = $this->fieldFactory->create();
@@ -272,12 +245,6 @@ class Save extends Action
             if ($fieldId && in_array($fieldId, $existingFieldIds, true)) {
                 $this->fieldResource->load($fieldModel, $fieldId);
                 $submittedFieldIds[] = $fieldId;
-                $this->logger->info('DynamicForms Save: Updating existing field', ['field_id' => $fieldId]);
-            } else {
-                $this->logger->info('DynamicForms Save: Creating new field', [
-                    'label' => $fieldData['label'] ?? '',
-                    'field_type' => $fieldData['field_type'] ?? 'text',
-                ]);
             }
 
             $fieldModel->setData('form_id', $formId);
@@ -312,13 +279,15 @@ class Save extends Action
 
             try {
                 $this->fieldResource->save($fieldModel);
-                $this->logger->info('DynamicForms Save: Field saved', [
-                    'field_id' => $fieldModel->getId(),
-                    'label' => $fieldModel->getData('label'),
+                $this->logger->debug('DynamicForms Save: Field saved', [
+                    'form_id' => $formId,
+                    'field_id' => (int) $fieldModel->getId(),
                 ]);
             } catch (\Exception $e) {
                 $this->logger->error('DynamicForms Save: Failed to save field', [
-                    'label' => $fieldData['label'] ?? '',
+                    'form_id' => $formId,
+                    'field_id' => $fieldId,
+                    'position' => $sortOrder,
                     'error' => $e->getMessage(),
                 ]);
                 throw $e;
@@ -326,22 +295,20 @@ class Save extends Action
         }
 
         $fieldsToDelete = array_diff($existingFieldIds, $submittedFieldIds);
-        if (!empty($fieldsToDelete)) {
-            $this->logger->info('DynamicForms Save: Deleting removed fields', [
-                'field_ids' => array_values($fieldsToDelete),
-            ]);
-        }
 
         foreach ($fieldsToDelete as $deleteFieldId) {
             $fieldModel = $this->fieldFactory->create();
             $this->fieldResource->load($fieldModel, $deleteFieldId);
             if ($fieldModel->getId()) {
                 $this->fieldResource->delete($fieldModel);
-                $this->logger->info('DynamicForms Save: Deleted field', ['field_id' => $deleteFieldId]);
             }
         }
 
-        $this->logger->info('DynamicForms Save: Field processing complete');
+        $this->logger->debug('DynamicForms Save: Field processing complete', [
+            'form_id' => $formId,
+            'saved_count' => count($fields),
+            'deleted_field_ids' => array_values($fieldsToDelete),
+        ]);
     }
 
     protected function _isAllowed(): bool

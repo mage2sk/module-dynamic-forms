@@ -4,6 +4,26 @@ All notable changes to this extension are documented here. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.11] - 2026-09-07
+
+### Fixed
+- New forms were never inserted. The admin edit form posts an empty
+  `form_id`. The model treated that empty string as an existing id. The save
+  then ran an update that matched no row. The field save failed next with a
+  foreign key error on `panth_dynamic_form_field`. The empty id is now
+  removed before the save. A new form gets a real id and its fields are
+  inserted with it.
+- The form row and its fields are now saved in one database transaction. A
+  failed field save rolls back the form row instead of leaving a half saved
+  form.
+- After a failed save the field builder data is kept, so the fields are shown
+  again on the redirected edit page.
+
+### Changed
+- The admin form save controller now logs progress at debug level only.
+  Debug lines contain ids and counts, not posted values. Errors are still
+  logged at error and critical level.
+
 ## [1.0.10] - 2026-08-17
 
 ### Fixed
