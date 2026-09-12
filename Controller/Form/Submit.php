@@ -105,6 +105,8 @@ class Submit implements HttpPostActionInterface
             ]);
         }
 
+        $this->warnIfHoneypotMissing();
+
         $spamReason = $this->detectSpam();
         if ($spamReason !== null) {
             $this->logger->info('Panth DynamicForms: submission blocked by the spam guard', [
@@ -303,6 +305,24 @@ class Submit implements HttpPostActionInterface
     }
 
     public const HONEYPOT_FIELD = 'contact_url';
+
+    private function warnIfHoneypotMissing(): void
+    {
+        if (!$this->helper->isHoneypotEnabled()) {
+            return;
+        }
+
+        if ($this->request->getParam(self::HONEYPOT_FIELD) !== null) {
+            return;
+        }
+
+        $this->logger->info(
+            'Panth DynamicForms: the honeypot field was not present in the submission. '
+            . 'A custom form template is probably missing '
+            . '<?= $block->getAntiSpamFieldsHtml() ?> inside the <form>. '
+            . 'The honeypot check is being skipped; the content guard still applies.'
+        );
+    }
 
     private function detectSpam(): ?string
     {

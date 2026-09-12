@@ -4,6 +4,16 @@ All notable changes to this extension are documented here. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] - 2026-09-12
+
+### Fixed
+- **The honeypot silently stopped working under a custom theme template.** It is rendered by the form template, so a theme that overrides `widget/form.phtml` or `widget/form_hyva.phtml` to restyle the visible fields drops it without any error, leaving only the content guard. The block now injects the field into the rendered `<form>`, so an override that only restyles keeps the protection.
+- **The injected field could not be submitted on a Hyva theme.** The Hyva template builds its FormData field by field and looked the honeypot up by an element id that did not match the one being rendered, so the value was never sent. The ids now agree, and the lookup falls back to the field name so any override that keeps the markup still submits it.
+
+### Added
+- **`$block->getAntiSpamFieldsHtml()`** renders the honeypot in one call. The shipped templates use it, and a custom template should keep that single line inside the `<form>`. Injection is skipped when the template already rendered it, so the field is never duplicated.
+- When the honeypot is enabled but the field does not arrive with a submission, an info-level log line says so and names the likely cause.
+
 ## [1.1.0] - 2026-09-12
 
 ### Added

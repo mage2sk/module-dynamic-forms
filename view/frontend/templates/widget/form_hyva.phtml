@@ -104,17 +104,11 @@ $pageTitle = $form->getData('title') ?: $form->getData('name');
 
             <form @submit.prevent="submit()" novalidate>
                 <input type="hidden" name="form_key" :value="formKey"/>
-            <?php if ($block->isHoneypotEnabled()): ?>
-                <div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
-                    <label for="pdf-hp-<?= /* @noEscape */ $formId ?>"><?= $escaper->escapeHtml(__('Leave this field empty')) ?></label>
-                    <input type="text"
-                           id="pdf-hp-<?= /* @noEscape */ $formId ?>"
-                           name="<?= $escaper->escapeHtmlAttr($block->getHoneypotFieldName()) ?>"
-                           value=""
-                           autocomplete="off"
-                           tabindex="-1"/>
-                </div>
-            <?php endif; ?>
+            <?php
+            /* Anti-spam fields. A custom template override MUST keep this one call
+               inside the <form>, or the honeypot is silently skipped. */
+            ?>
+            <?= /* @noEscape */ $block->getAntiSpamFieldsHtml() ?>
 
                 <input type="hidden" name="form_id" value="<?= (int) $formId ?>"/>
 
@@ -408,7 +402,8 @@ function <?= /** @noEscape */ $fid ?>() {
             const fd = new FormData();
             fd.append('form_key', this.formKey);
             fd.append('form_id', '<?= /* @noEscape */ $formId ?>');
-            const hp = document.getElementById('pdf-hp-<?= /* @noEscape */ $formId ?>');
+            const hp = document.getElementById('pdf-hp-<?= /* @noEscape */ $formId ?>')
+                || document.querySelector('[name="<?= $escaper->escapeJs($block->getHoneypotFieldName()) ?>"]');
             if (hp) { fd.append(hp.name, hp.value); }
             fieldsDef.forEach(f => {
                 const v = this.fd[f.name];

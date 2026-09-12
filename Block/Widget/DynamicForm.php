@@ -16,6 +16,8 @@ use Panth\Core\Helper\Theme as ThemeHelper;
 
 class DynamicForm extends Template implements BlockInterface
 {
+    public const ANTISPAM_MARKER = 'data-panth-antispam';
+
     private FormFactory $formFactory;
     private FormResource $formResource;
     private FieldCollectionFactory $fieldCollectionFactory;
@@ -61,6 +63,29 @@ class DynamicForm extends Template implements BlockInterface
     {
         return \Panth\DynamicForms\Controller\Form\Submit::HONEYPOT_FIELD;
     }
+
+    /**
+     * Every hidden anti-spam field the submit controller expects, ready to echo
+     * inside the <form>. A custom template override only has to call this once.
+     */
+    public function getAntiSpamFieldsHtml(): string
+    {
+        if (!$this->isHoneypotEnabled()) {
+            return '';
+        }
+
+        $field = $this->getHoneypotFieldName();
+        $form = $this->getForm();
+        $id = 'pdf-hp-' . ($form ? (int) $form->getId() : '0');
+
+        return '<div ' . self::ANTISPAM_MARKER . '="1" aria-hidden="true"'
+            . ' style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">'
+            . '<label for="' . $id . '">' . __('Leave this field empty') . '</label>'
+            . '<input type="text" id="' . $id . '" name="' . $field . '" value=""'
+            . ' tabindex="-1" autocomplete="off"/>'
+            . '</div>';
+    }
+
 
     public function getFormKey(): string
     {
@@ -255,7 +280,30 @@ class DynamicForm extends Template implements BlockInterface
             }
         }
 
-        return parent::_toHtml();
+        return $this->withAntiSpamFields(parent::_toHtml());
+    }
+
+    /**
+     * Guarantees the honeypot is inside the <form> even when a theme overrides
+     * the template and leaves getAntiSpamFieldsHtml() out.
+     */
+    private function withAntiSpamFields(string $html): string
+    {
+        if ($html === '' || str_contains($html, self::ANTISPAM_MARKER)) {
+            return $html;
+        }
+
+        $fields = $this->getAntiSpamFieldsHtml();
+        if ($fields === '') {
+            return $html;
+        }
+
+        return preg_replace_callback(
+            '~<form\b[^>]*>~i',
+            static fn (array $m): string => $m[0] . $fields,
+            $html,
+            1
+        ) ?? $html;
     }
 
     public function getFormIdentifier(): string
