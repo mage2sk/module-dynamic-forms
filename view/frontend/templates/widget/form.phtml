@@ -103,6 +103,18 @@ $formKeyValue = $block->getFormKey();
 
         <form id="pdf-form-<?= /* @noEscape */ $formId ?>" novalidate>
             <input type="hidden" name="form_key" value="<?= /* @noEscape */ $escaper->escapeHtmlAttr($formKeyValue) ?>"/>
+            <?php if ($block->isHoneypotEnabled()): ?>
+                <div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+                    <label for="pdf-hp-<?= /* @noEscape */ $formId ?>"><?= $escaper->escapeHtml(__('Leave this field empty')) ?></label>
+                    <input type="text"
+                           id="pdf-hp-<?= /* @noEscape */ $formId ?>"
+                           name="<?= $escaper->escapeHtmlAttr($block->getHoneypotFieldName()) ?>"
+                           value=""
+                           autocomplete="off"
+                           tabindex="-1"/>
+                </div>
+            <?php endif; ?>
+
             <input type="hidden" name="form_id" value="<?= /* @noEscape */ $formId ?>"/>
 
             <div class="pdf-grid">

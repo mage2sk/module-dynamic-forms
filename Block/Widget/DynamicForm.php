@@ -52,6 +52,16 @@ class DynamicForm extends Template implements BlockInterface
         $this->formKey = $formKey;
     }
 
+    public function isHoneypotEnabled(): bool
+    {
+        return $this->helper->isHoneypotEnabled();
+    }
+
+    public function getHoneypotFieldName(): string
+    {
+        return \Panth\DynamicForms\Controller\Form\Submit::HONEYPOT_FIELD;
+    }
+
     public function getFormKey(): string
     {
         return $this->formKey->getFormKey();

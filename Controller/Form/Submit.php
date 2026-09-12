@@ -17,6 +17,7 @@ use Panth\DynamicForms\Model\SubmissionValueFactory;
 use Panth\DynamicForms\Model\ResourceModel\SubmissionValue as SubmissionValueResource;
 use Panth\DynamicForms\Model\ResourceModel\Field\CollectionFactory as FieldCollectionFactory;
 use Panth\DynamicForms\Helper\Data as Helper;
+use Panth\DynamicForms\Model\Spam\ContentGuard;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Psr\Log\LoggerInterface;
 
@@ -37,6 +38,7 @@ class Submit implements HttpPostActionInterface
     private Helper $helper;
     private RemoteAddress $remoteAddress;
     private LoggerInterface $logger;
+    private ContentGuard $contentGuard;
 
     public function __construct(
         RequestInterface $request,
@@ -53,7 +55,8 @@ class Submit implements HttpPostActionInterface
         FieldCollectionFactory $fieldCollectionFactory,
         Helper $helper,
         RemoteAddress $remoteAddress,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ContentGuard $contentGuard
     ) {
         $this->request = $request;
         $this->jsonFactory = $jsonFactory;
@@ -70,6 +73,7 @@ class Submit implements HttpPostActionInterface
         $this->helper = $helper;
         $this->remoteAddress = $remoteAddress;
         $this->logger = $logger;
+        $this->contentGuard = $contentGuard;
     }
 
     public function execute(): \Magento\Framework\Controller\Result\Json
@@ -98,6 +102,23 @@ class Submit implements HttpPostActionInterface
             return $result->setData([
                 'success' => false,
                 'message' => __('This form is no longer available.'),
+            ]);
+        }
+
+        $spamReason = $this->detectSpam();
+        if ($spamReason !== null) {
+            $this->logger->info('Panth DynamicForms: submission blocked by the spam guard', [
+                'reason' => $spamReason,
+                'form_id' => $formId,
+                'ip' => $this->remoteAddress->getRemoteAddress(),
+                'sample' => $this->contentGuard->sample($this->collectInspectableValues()),
+            ]);
+
+            return $result->setData([
+                'success' => true,
+                'message' => $form->getData('success_message')
+                    ?: __('Thank you! Your form has been submitted successfully.'),
+                'redirect_url' => $form->getData('redirect_url') ?: '',
             ]);
         }
 
@@ -279,6 +300,37 @@ class Submit implements HttpPostActionInterface
                 'message' => __('An error occurred while submitting the form. Please try again.'),
             ]);
         }
+    }
+
+    public const HONEYPOT_FIELD = 'contact_url';
+
+    private function detectSpam(): ?string
+    {
+        if ($this->helper->isHoneypotEnabled()
+            && trim((string) $this->request->getParam(self::HONEYPOT_FIELD, '')) !== ''
+        ) {
+            return 'honeypot filled';
+        }
+
+        $values = $this->collectInspectableValues();
+
+        return $this->contentGuard->detect($values, array_keys($values));
+    }
+
+    private function collectInspectableValues(): array
+    {
+        $skip = ['form_key', 'form_id', 'ajax', self::HONEYPOT_FIELD];
+        $values = [];
+
+        foreach ($this->request->getParams() as $key => $value) {
+            $key = (string) $key;
+            if (in_array($key, $skip, true) || str_starts_with($key, '_')) {
+                continue;
+            }
+            $values[$key] = $value;
+        }
+
+        return $values;
     }
 
     private function validateFieldValue(string $value, array $rules, string $label): ?string

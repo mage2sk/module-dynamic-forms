@@ -3,6 +3,11 @@
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <panth_dynamicforms>
+            <spam>
+                <honeypot_enabled>1</honeypot_enabled>
+                <content_guard_enabled>1</content_guard_enabled>
+                <extra_blocked_terms></extra_blocked_terms>
+            </spam>
             <general>
                 <enabled>1</enabled>
                 <recaptcha_enabled>0</recaptcha_enabled>

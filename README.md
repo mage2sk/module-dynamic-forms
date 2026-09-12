@@ -252,6 +252,9 @@ Go to **Stores -> Configuration -> Panth Extensions -> Dynamic Forms**.
 | Enable reCAPTCHA | General | No | Turn on Google reCAPTCHA v3 for form submissions. |
 | reCAPTCHA Site Key | General | (empty) | Site key from your Google reCAPTCHA account. Shown only when reCAPTCHA is enabled. |
 | reCAPTCHA Secret Key | General | (empty) | Secret key from your Google reCAPTCHA account. Shown only when reCAPTCHA is enabled. |
+| Enable Honeypot Field | Spam Protection | Yes | Render a decoy field hidden from people and screen readers; a bot that fills it is dropped. |
+| Block Spam By Message Content | Spam Protection | Yes | Drop submissions carrying link-shortener domains, money-transfer scam wording, three or more links, or a URL in a short field. |
+| Additional Blocked Terms | Spam Protection | (empty) | Extra terms or domains, one per line, added to the built-in shortener list. |
 | Allowed File Extensions | General | (global default) | Comma-separated list of permitted extensions for file upload fields. |
 | Max File Size (MB) | General | (global default) | Maximum upload size in megabytes. |
 | Upload Directory | General | (default path) | Path relative to the media directory where uploaded files are stored. |

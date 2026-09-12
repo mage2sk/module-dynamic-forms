@@ -59,6 +59,24 @@
                     <comment>Relative path from media directory for file uploads.</comment>
                 </field>
             </group>
+            <group id="spam" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Spam Protection</label>
+                <field id="honeypot_enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Honeypot Field</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Adds a decoy field that is hidden from people and from screen readers. A bot that fills it in gets the normal success response, but nothing is saved and no email is sent.</comment>
+                </field>
+                <field id="content_guard_enabled" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Block Spam By Message Content</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Silently drops submissions carrying link-shortener domains, money-transfer scam wording, three or more links, or a URL in a short field. The sender sees the normal success response so bots do not retry. A genuine enquiry that mentions one link in a long message still gets through.]]></comment>
+                </field>
+                <field id="extra_blocked_terms" translate="label comment" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Additional Blocked Terms</label>
+                    <comment>One term or domain per line, added to the built-in link-shortener list. Matched whole-word and case-insensitively across every submitted field.</comment>
+                    <depends><field id="content_guard_enabled">1</field></depends>
+                </field>
+            </group>
 
             <!-- Email Settings -->
             <group id="email" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">

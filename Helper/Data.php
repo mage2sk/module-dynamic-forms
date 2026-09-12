@@ -23,6 +23,9 @@ class Data extends AbstractHelper
     private const XML_PATH_ADMIN_EMAIL_TEMPLATE = 'panth_dynamicforms/email/admin_email_template';
     private const XML_PATH_AUTO_REPLY_TEMPLATE = 'panth_dynamicforms/email/autoreply_email_template';
     private const XML_PATH_SENDER_IDENTITY = 'panth_dynamicforms/email/admin_email_sender';
+    private const XML_PATH_HONEYPOT_ENABLED = 'panth_dynamicforms/spam/honeypot_enabled';
+    private const XML_PATH_CONTENT_GUARD_ENABLED = 'panth_dynamicforms/spam/content_guard_enabled';
+    private const XML_PATH_BLOCKED_TERMS = 'panth_dynamicforms/spam/extra_blocked_terms';
 
     private const UPLOAD_DIR = 'dynamicforms/uploads';
 
@@ -68,6 +71,33 @@ class Data extends AbstractHelper
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
+    }
+
+    public function isHoneypotEnabled(?int $storeId = null): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::XML_PATH_HONEYPOT_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    public function isContentGuardEnabled(?int $storeId = null): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::XML_PATH_CONTENT_GUARD_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    public function getBlockedTerms(?int $storeId = null): string
+    {
+        return (string) ($this->scopeConfig->getValue(
+            self::XML_PATH_BLOCKED_TERMS,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?? '');
     }
 
     public function isEnabled(?int $storeId = null): bool

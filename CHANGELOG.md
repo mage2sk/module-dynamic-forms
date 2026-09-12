@@ -4,6 +4,16 @@ All notable changes to this extension are documented here. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-09-12
+
+### Added
+- **Honeypot field.** Every form now renders a decoy input that is positioned off-screen, marked `aria-hidden`, given `tabindex="-1"` and `autocomplete="off"`, so neither a person nor a screen reader ever reaches it. A submission that fills it is dropped. Rendered in both the Luma and the Hyva template.
+- **Content spam guard.** A valid form key does not stop a bot that renders the page like a browser, so money-transfer spam was writing a submission row and firing the admin email every time. Submissions are now inspected before anything is saved or emailed and dropped when they carry a link-shortener or redirector domain (`share.google`, `t.me`, `bit.ly`, `tinyurl.com`, `goo.gl`, `is.gd`, `cutt.ly`, `rebrand.ly`, `rb.gy`, `shorturl.at`), money-transfer scam wording backed by a currency or a link, three or more links, or a URL in a short field.
+- Both guards return the form's **normal success response** so a bot cannot tell it was blocked and does not retry, and log at info level with the client IP and a truncated sample.
+- Three settings under a new **Spam Protection** group in **Stores > Configuration > Panth Extensions > Dynamic Forms**: `Enable Honeypot Field` (default Yes), `Block Spam By Message Content` (default Yes) and `Additional Blocked Terms` (one term or domain per line).
+
+The guard is deliberately high precision: an enquiry that mentions one link in a long message still gets through, and a field whose name looks like a website field is exempt from the short-field URL rule.
+
 ## [1.0.11] - 2026-09-07
 
 ### Fixed
