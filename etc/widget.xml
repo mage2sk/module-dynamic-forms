@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+    <widget id="panth_dynamic_form"
+            class="Panth\DynamicForms\Block\Widget\DynamicForm">
+        <label translate="true">Dynamic Form</label>
+        <description translate="true">Display a dynamic form anywhere</description>
+        <parameters>
+            <parameter name="form_id" xsi:type="select" required="true" visible="true" sort_order="10"
+                       source_model="Panth\DynamicForms\Model\Config\Source\FormList">
+                <label translate="true">Select Form</label>
+            </parameter>
+            <parameter name="show_title" xsi:type="select" required="false" visible="true" sort_order="20">
+                <label translate="true">Show Form Title</label>
+                <options>
+                    <option name="yes" value="1" selected="true">
+                        <label translate="true">Yes</label>
+                    </option>
+                    <option name="no" value="0">
+                        <label translate="true">No</label>
+                    </option>
+                </options>
+            </parameter>
+            <parameter name="show_description" xsi:type="select" required="false" visible="true" sort_order="30">
+                <label translate="true">Show Form Description</label>
+                <options>
+                    <option name="yes" value="1" selected="true">
+                        <label translate="true">Yes</label>
+                    </option>
+                    <option name="no" value="0">
+                        <label translate="true">No</label>
+                    </option>
+                </options>
+            </parameter>
+            <parameter name="template" xsi:type="select" required="false" visible="true" sort_order="40">
+                <label translate="true">Template</label>
+                <options>
+                    <option name="default" value="Panth_DynamicForms::widget/form.phtml" selected="true">
+                        <label translate="true">Default</label>
+                    </option>
+                    <option name="hyva" value="Panth_DynamicForms::widget/form_hyva.phtml">
+                        <label translate="true">Hyva</label>
+                    </option>
+                </options>
+            </parameter>
+        </parameters>
+        <containers>
+            <container name="content">
+                <template name="default" value="default"/>
+            </container>
+            <container name="content.top">
+                <template name="default" value="default"/>
+            </container>
+            <container name="content.bottom">
+                <template name="default" value="default"/>
+            </container>
+            <container name="sidebar.main">
+                <template name="default" value="default"/>
+            </container>
+            <container name="sidebar.additional">
+                <template name="default" value="default"/>
+            </container>
+        </containers>
+    </widget>
+</widgets>
