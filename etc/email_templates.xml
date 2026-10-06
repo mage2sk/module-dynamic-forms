@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="panth_dynamicforms_email_admin_email_template"
+              label="Dynamic Forms - Admin Notification"
+              file="admin_notification.html"
+              type="html"
+              module="Panth_DynamicForms"
+              area="frontend"/>
+    <template id="panth_dynamicforms_email_autoreply_email_template"
+              label="Dynamic Forms - Customer Auto-Reply"
+              file="customer_autoreply.html"
+              type="html"
+              module="Panth_DynamicForms"
+              area="frontend"/>
+</config>

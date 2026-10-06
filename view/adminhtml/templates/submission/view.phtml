@@ -1,0 +1,214 @@
+<?php
+/**
+ * @var \Panth\DynamicForms\Block\Adminhtml\Submission\View $block
+ */
+$submission = $block->getSubmission();
+$form = $block->getForm();
+$values = $block->getSubmissionValues();
+$statusOptions = $block->getStatusOptions();
+$currentStatus = (string) $submission->getData('status');
+$updateStatusUrl = $block->getUpdateStatusUrl();
+$backUrl = $block->getBackUrl();
+$deleteUrl = $block->getDeleteUrl();
+$severityMap = [
+    'new' => 'grid-severity-major',
+    'read' => 'grid-severity-minor',
+    'replied' => 'grid-severity-notice',
+    'closed' => 'grid-severity-notice',
+];
+?>
+
+<style>
+    .df-submission-view .df-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 30px; }
+    .df-submission-view .admin__page-section { margin-bottom: 40px; }
+    .df-submission-view .admin__table-secondary th { width: 30%; }
+    .df-submission-view .df-value { white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow-y: auto; }
+    .df-submission-view .df-type { color: #666; font-size: 12px; }
+    .df-submission-view .df-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .df-submission-view .df-controls .admin__control-select { width: auto; min-width: 200px; }
+    .df-submission-view .df-notes .admin__control-textarea { width: 100%; min-height: 100px; margin-bottom: 10px; }
+    .df-submission-view .df-status-badge { display: inline-block; min-width: 90px; padding: 0 12px; }
+    .df-submission-view .df-message { display: none; }
+    .df-submission-view .df-message.is-visible { display: block; }
+</style>
+
+<div class="df-submission-view">
+    <div class="df-toolbar">
+        <a href="<?= $block->escapeUrl($backUrl) ?>" class="action-default back"><span><?= $block->escapeHtml(__('Back')) ?></span></a>
+        <a href="<?= $block->escapeUrl($deleteUrl) ?>"
+           class="action-default delete"
+           onclick="return confirm('<?= $block->escapeJs(__('Are you sure you want to delete this submission?')) ?>');"><span><?= $block->escapeHtml(__('Delete')) ?></span></a>
+    </div>
+
+    <div id="df-status-message" class="messages df-message"><div class="message"><div data-role="df-message-text"></div></div></div>
+
+    <section class="admin__page-section">
+        <div class="admin__page-section-title">
+            <span class="title"><?= $block->escapeHtml(__('Submission Information')) ?></span>
+        </div>
+        <div class="admin__page-section-content">
+            <table class="admin__table-secondary">
+                <tbody>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Form')) ?></th>
+                        <td><?= $block->escapeHtml($form->getData('name') ?: __('Unknown Form')) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Status')) ?></th>
+                        <td><span class="df-status-badge <?= $block->escapeHtmlAttr($severityMap[$currentStatus] ?? 'grid-severity-minor') ?>"><span><?= $block->escapeHtml(ucfirst($currentStatus)) ?></span></span></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Customer Name')) ?></th>
+                        <td><?= $block->escapeHtml($submission->getData('customer_name') ?: __('N/A')) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Customer Email')) ?></th>
+                        <td><?= $block->escapeHtml($submission->getData('customer_email') ?: __('N/A')) ?></td>
+                    </tr>
+                    <?php if ($submission->getData('customer_id')): ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Customer ID')) ?></th>
+                        <td><?= (int) $submission->getData('customer_id') ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('IP Address')) ?></th>
+                        <td><?= $block->escapeHtml($submission->getData('customer_ip') ?: __('N/A')) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Store ID')) ?></th>
+                        <td><?= (int) $submission->getData('store_id') ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Submitted At')) ?></th>
+                        <td><?= $block->escapeHtml($submission->getData('created_at') ?: __('N/A')) ?></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="admin__page-section">
+        <div class="admin__page-section-title">
+            <span class="title"><?= $block->escapeHtml(__('Submitted Data')) ?></span>
+        </div>
+        <div class="admin__page-section-content">
+            <?php if (empty($values)): ?>
+                <p><?= $block->escapeHtml(__('No field values found for this submission.')) ?></p>
+            <?php else: ?>
+                <table class="admin__table-secondary">
+                    <tbody>
+                        <?php foreach ($values as $val): ?>
+                            <?php
+                            $fieldType = (string) ($val['field_type'] ?? '');
+                            $fieldValue = (string) ($val['value'] ?? '');
+                            $downloadUrl = $block->getFileDownloadUrl($val);
+                            ?>
+                            <tr>
+                                <th><?= $block->escapeHtml($val['field_label'] ?? __('Unknown Field')) ?><br><span class="df-type"><?= $block->escapeHtml($fieldType !== '' ? $fieldType : '-') ?></span></th>
+                                <td><?php if ($downloadUrl !== ''): ?><a href="<?= $block->escapeUrl($downloadUrl) ?>" target="_blank" rel="noopener"><?= $block->escapeHtml(__('Download File')) ?></a><?php else: ?><div class="df-value"><?= $block->escapeHtml($fieldValue) ?></div><?php endif; ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <section class="admin__page-section">
+        <div class="admin__page-section-title">
+            <span class="title"><?= $block->escapeHtml(__('Update Status')) ?></span>
+        </div>
+        <div class="admin__page-section-content">
+            <div class="df-controls">
+                <label class="admin__field-label" for="df-status-select"><span><?= $block->escapeHtml(__('Status')) ?></span></label>
+                <select id="df-status-select" class="admin__control-select">
+                    <?php foreach ($statusOptions as $option): ?>
+                        <option value="<?= $block->escapeHtmlAttr($option['value']) ?>"<?php if ($option['value'] === $currentStatus): ?> selected<?php endif; ?>><?= $block->escapeHtml($option['label']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="button" id="df-update-status-btn" class="action-secondary"><span><?= $block->escapeHtml(__('Update Status')) ?></span></button>
+            </div>
+        </div>
+    </section>
+
+    <section class="admin__page-section df-notes">
+        <div class="admin__page-section-title">
+            <span class="title"><?= $block->escapeHtml(__('Admin Notes')) ?></span>
+        </div>
+        <div class="admin__page-section-content">
+            <label class="admin__field-label" for="df-admin-notes"><span><?= $block->escapeHtml(__('Internal notes')) ?></span></label>
+            <textarea id="df-admin-notes" class="admin__control-textarea" placeholder="<?= $block->escapeHtmlAttr(__('Add internal notes about this submission...')) ?>"><?= $block->escapeHtml($submission->getData('admin_notes') ?? '') ?></textarea>
+            <button type="button" id="df-save-notes-btn" class="action-secondary"><span><?= $block->escapeHtml(__('Save Notes')) ?></span></button>
+        </div>
+    </section>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    var updateStatusUrl = '<?= $block->escapeJs($updateStatusUrl) ?>';
+    var submissionId = <?= (int) $submission->getId() ?>;
+    var formKey = '<?= $block->escapeJs($block->getFormKey()) ?>';
+    var severityMap = <?= /* @noEscape */ json_encode($severityMap) ?>;
+
+    function showMessage(type, text) {
+        var msgEl = document.getElementById('df-status-message');
+        var inner = msgEl.querySelector('.message');
+        inner.className = 'message ' + (type === 'success' ? 'message-success success' : 'message-error error');
+        msgEl.querySelector('[data-role="df-message-text"]').textContent = text;
+        msgEl.classList.add('is-visible');
+        setTimeout(function() {
+            msgEl.classList.remove('is-visible');
+        }, 5000);
+    }
+
+    function sendUpdate(status, adminNotes) {
+        var params = new URLSearchParams();
+        params.append('submission_id', submissionId);
+        params.append('form_key', formKey);
+        if (status !== null) {
+            params.append('status', status);
+        }
+        if (adminNotes !== null) {
+            params.append('admin_notes', adminNotes);
+        }
+
+        fetch(updateStatusUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: params.toString()
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                showMessage('success', data.message || 'Updated successfully.');
+                if (status !== null) {
+                    var badge = document.querySelector('.df-status-badge');
+                    if (badge) {
+                        badge.className = 'df-status-badge ' + (severityMap[status] || 'grid-severity-minor');
+                        badge.firstElementChild.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                    }
+                }
+            } else {
+                showMessage('error', data.message || 'An error occurred.');
+            }
+        })
+        .catch(function(err) {
+            showMessage('error', 'Request failed: ' + err.message);
+        });
+    }
+
+    document.getElementById('df-update-status-btn').addEventListener('click', function() {
+        sendUpdate(document.getElementById('df-status-select').value, null);
+    });
+
+    document.getElementById('df-save-notes-btn').addEventListener('click', function() {
+        sendUpdate(null, document.getElementById('df-admin-notes').value);
+    });
+})();
+</script>

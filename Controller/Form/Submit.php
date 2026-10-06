@@ -1,0 +1,463 @@
+<?php
+declare(strict_types=1);
+
+namespace Panth\DynamicForms\Controller\Form;
+
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Data\Form\FormKey\Validator as FormKeyValidator;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Store\Model\StoreManagerInterface;
+use Panth\DynamicForms\Model\FormFactory;
+use Panth\DynamicForms\Model\ResourceModel\Form as FormResource;
+use Panth\DynamicForms\Model\SubmissionFactory;
+use Panth\DynamicForms\Model\ResourceModel\Submission as SubmissionResource;
+use Panth\DynamicForms\Model\SubmissionValueFactory;
+use Panth\DynamicForms\Model\ResourceModel\SubmissionValue as SubmissionValueResource;
+use Panth\DynamicForms\Model\ResourceModel\Field\CollectionFactory as FieldCollectionFactory;
+use Panth\DynamicForms\Helper\Data as Helper;
+use Panth\DynamicForms\Model\Spam\ContentGuard;
+use Panth\DynamicForms\Model\AutoReplyGuard;
+use Panth\DynamicForms\Model\RedirectUrlValidator;
+use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
+use Psr\Log\LoggerInterface;
+
+class Submit implements HttpPostActionInterface
+{
+    private RequestInterface $request;
+    private JsonFactory $jsonFactory;
+    private FormKeyValidator $formKeyValidator;
+    private CustomerSession $customerSession;
+    private StoreManagerInterface $storeManager;
+    private FormFactory $formFactory;
+    private FormResource $formResource;
+    private SubmissionFactory $submissionFactory;
+    private SubmissionResource $submissionResource;
+    private SubmissionValueFactory $submissionValueFactory;
+    private SubmissionValueResource $submissionValueResource;
+    private FieldCollectionFactory $fieldCollectionFactory;
+    private Helper $helper;
+    private RemoteAddress $remoteAddress;
+    private LoggerInterface $logger;
+    private ContentGuard $contentGuard;
+    private AutoReplyGuard $autoReplyGuard;
+    private RedirectUrlValidator $redirectUrlValidator;
+
+    public function __construct(
+        RequestInterface $request,
+        JsonFactory $jsonFactory,
+        FormKeyValidator $formKeyValidator,
+        CustomerSession $customerSession,
+        StoreManagerInterface $storeManager,
+        FormFactory $formFactory,
+        FormResource $formResource,
+        SubmissionFactory $submissionFactory,
+        SubmissionResource $submissionResource,
+        SubmissionValueFactory $submissionValueFactory,
+        SubmissionValueResource $submissionValueResource,
+        FieldCollectionFactory $fieldCollectionFactory,
+        Helper $helper,
+        RemoteAddress $remoteAddress,
+        LoggerInterface $logger,
+        ContentGuard $contentGuard,
+        AutoReplyGuard $autoReplyGuard,
+        RedirectUrlValidator $redirectUrlValidator
+    ) {
+        $this->request = $request;
+        $this->jsonFactory = $jsonFactory;
+        $this->formKeyValidator = $formKeyValidator;
+        $this->customerSession = $customerSession;
+        $this->storeManager = $storeManager;
+        $this->formFactory = $formFactory;
+        $this->formResource = $formResource;
+        $this->submissionFactory = $submissionFactory;
+        $this->submissionResource = $submissionResource;
+        $this->submissionValueFactory = $submissionValueFactory;
+        $this->submissionValueResource = $submissionValueResource;
+        $this->fieldCollectionFactory = $fieldCollectionFactory;
+        $this->helper = $helper;
+        $this->remoteAddress = $remoteAddress;
+        $this->logger = $logger;
+        $this->contentGuard = $contentGuard;
+        $this->autoReplyGuard = $autoReplyGuard;
+        $this->redirectUrlValidator = $redirectUrlValidator;
+    }
+
+    public function execute(): \Magento\Framework\Controller\Result\Json
+    {
+        $result = $this->jsonFactory->create();
+
+        if (!$this->formKeyValidator->validate($this->request)) {
+            return $result->setData([
+                'success' => false,
+                'message' => __('Invalid form key. Please refresh the page and try again.'),
+            ]);
+        }
+
+        if (!$this->helper->isEnabled()) {
+            return $result->setData([
+                'success' => false,
+                'message' => __('This form is no longer available.'),
+            ]);
+        }
+
+        $formId = (int) $this->request->getParam('form_id');
+        if (!$formId) {
+            return $result->setData([
+                'success' => false,
+                'message' => __('Invalid form.'),
+            ]);
+        }
+
+        $form = $this->formFactory->create();
+        $this->formResource->load($form, $formId);
+
+        if (!$form->getId() || !$form->getData('is_active') || !$this->helper->isFormAvailableInStore($form)) {
+            return $result->setData([
+                'success' => false,
+                'message' => __('This form is no longer available.'),
+            ]);
+        }
+
+        $this->warnIfHoneypotMissing();
+
+        $spamReason = $this->detectSpam();
+        if ($spamReason !== null) {
+            $this->logger->info('Panth DynamicForms: submission blocked by the spam guard', [
+                'reason' => $spamReason,
+                'form_id' => $formId,
+                'ip' => $this->remoteAddress->getRemoteAddress(),
+                'sample' => $this->contentGuard->sample($this->collectInspectableValues()),
+            ]);
+
+            return $result->setData([
+                'success' => true,
+                'message' => $form->getData('success_message')
+                    ?: __('Thank you! Your form has been submitted successfully.'),
+                'redirect_url' => $this->redirectUrlValidator->sanitize((string) $form->getData('redirect_url')),
+            ]);
+        }
+
+        $fieldCollection = $this->fieldCollectionFactory->create();
+        $fieldCollection->addFieldToFilter('form_id', $formId)
+            ->addFieldToFilter('is_active', 1)
+            ->setOrder('sort_order', 'ASC');
+
+        $postData = $this->request->getParams();
+        $errors = [];
+        $submissionValues = [];
+
+        foreach ($fieldCollection as $field) {
+            $fieldName = $field->getData('name');
+            $fieldType = $field->getData('field_type');
+            $rawValue = $postData[$fieldName] ?? '';
+            $selected = [];
+
+            if (is_array($rawValue)) {
+                $selected = array_values(array_filter(
+                    array_map(
+                        static fn ($item) => is_scalar($item) ? trim((string) $item) : '',
+                        $rawValue
+                    ),
+                    static fn ($item) => $item !== ''
+                ));
+                $value = implode(', ', $selected);
+            } else {
+                $value = is_scalar($rawValue) ? trim((string) $rawValue) : '';
+                if ($value !== '') {
+                    $selected = [$value];
+                }
+            }
+
+            if ($field->getData('is_required') && $value === '' && $fieldType !== 'file') {
+                $errors[$fieldName] = __('%1 is required.', $field->getData('label'));
+                continue;
+            }
+
+            if ($fieldType === 'file') {
+                $fileValue = is_array($rawValue) ? '' : $value;
+                if ($field->getData('is_required') && !$fileValue) {
+                    $errors[$fieldName] = __('%1 is required.', $field->getData('label'));
+                    continue;
+                }
+
+                if ($fileValue !== '' && !$this->helper->isUploadedFile($fileValue)) {
+                    $errors[$fieldName] = __('Please upload the file for %1 again.', $field->getData('label'));
+                    continue;
+                }
+
+                $value = $fileValue;
+            }
+
+            if ($value !== '' && !$this->isAllowedChoice($field, $fieldType, $selected)) {
+                $errors[$fieldName] = __('Please select a valid option for %1.', $field->getData('label'));
+                continue;
+            }
+
+            if (mb_strlen($value) > self::MAX_VALUE_LENGTH) {
+                $errors[$fieldName] = __(
+                    '%1 must be no more than %2 characters.',
+                    $field->getData('label'),
+                    self::MAX_VALUE_LENGTH
+                );
+                continue;
+            }
+
+            $validationRules = $field->getData('validation_rules');
+            if ($validationRules) {
+                $rules = json_decode($validationRules, true);
+                if (is_array($rules) && $value !== '') {
+                    $fieldError = $this->validateFieldValue($value, $rules, $field->getData('label'));
+                    if ($fieldError) {
+                        $errors[$fieldName] = $fieldError;
+                        continue;
+                    }
+                }
+            }
+
+            if ($fieldType === 'email' && $value !== '') {
+                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                    $errors[$fieldName] = __('Please enter a valid email address.');
+                    continue;
+                }
+            }
+
+            if ($fieldType === 'phone' && $value !== '') {
+                if (!preg_match('/^[\d\s\-\+\(\)\.]{7,20}$/', $value)) {
+                    $errors[$fieldName] = __('Please enter a valid phone number.');
+                    continue;
+                }
+            }
+
+            if ($fieldType === 'number' && $value !== '') {
+                if (!is_numeric($value)) {
+                    $errors[$fieldName] = __('Please enter a valid number.');
+                    continue;
+                }
+            }
+
+            $submissionValues[] = [
+                'field_id' => (int) $field->getId(),
+                'label' => $field->getData('label'),
+                'type' => $fieldType,
+                'value' => $value,
+            ];
+        }
+
+        if (!empty($errors)) {
+            return $result->setData([
+                'success' => false,
+                'message' => __('Please correct the errors below.'),
+                'errors' => $errors,
+            ]);
+        }
+
+        try {
+            $customerEmail = '';
+            $customerName = '';
+            $customerId = null;
+
+            if ($this->customerSession->isLoggedIn()) {
+                $customer = $this->customerSession->getCustomer();
+                $customerEmail = $customer->getEmail();
+                $customerName = $customer->getName();
+                $customerId = (int) $customer->getId();
+            }
+
+            if (!$customerEmail) {
+                foreach ($submissionValues as $sv) {
+                    if ($sv['type'] === 'email' && $sv['value']) {
+                        $customerEmail = $sv['value'];
+                        break;
+                    }
+                }
+            }
+
+            if (!$customerName) {
+                foreach ($submissionValues as $sv) {
+                    $labelLower = strtolower($sv['label']);
+                    if (in_array($labelLower, ['name', 'full name', 'your name']) && $sv['value']) {
+                        $customerName = $sv['value'];
+                        break;
+                    }
+                }
+            }
+
+            $submission = $this->submissionFactory->create();
+            $submission->setData([
+                'form_id' => $formId,
+                'customer_id' => $customerId,
+                'customer_email' => mb_substr((string) $customerEmail, 0, 255),
+                'customer_name' => mb_substr((string) $customerName, 0, 255),
+                'customer_ip' => $this->remoteAddress->getRemoteAddress(),
+                'store_id' => (int) $this->storeManager->getStore()->getId(),
+                'status' => 'new',
+            ]);
+            $this->submissionResource->save($submission);
+
+            $emailValues = [];
+            foreach ($submissionValues as $sv) {
+                $submissionValue = $this->submissionValueFactory->create();
+                $submissionValue->setData([
+                    'submission_id' => (int) $submission->getId(),
+                    'field_id' => $sv['field_id'],
+                    'field_label' => $sv['label'],
+                    'field_type' => $sv['type'],
+                    'value' => $sv['value'],
+                ]);
+                $this->submissionValueResource->save($submissionValue);
+
+                $emailValues[] = [
+                    'label' => $sv['label'],
+                    'value' => $sv['value'],
+                    'type' => $sv['type'],
+                ];
+            }
+
+            $this->helper->sendAdminNotification($form, $submission, $emailValues);
+
+            if ($form->getData('auto_reply_enabled')
+                && $this->autoReplyGuard->isAllowed(
+                    (string) $submission->getData('customer_email'),
+                    (string) $submission->getData('customer_ip'),
+                    (int) $submission->getData('store_id')
+                )
+            ) {
+                $this->helper->sendAutoReply($form, $submission);
+            }
+
+            $successMessage = $form->getData('success_message')
+                ?: __('Thank you! Your form has been submitted successfully.');
+            $redirectUrl = $this->redirectUrlValidator->sanitize((string) $form->getData('redirect_url'));
+
+            return $result->setData([
+                'success' => true,
+                'message' => $successMessage,
+                'redirect_url' => $redirectUrl,
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('DynamicForms submission error: ' . $e->getMessage(), [
+                'form_id' => $formId,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return $result->setData([
+                'success' => false,
+                'message' => __('An error occurred while submitting the form. Please try again.'),
+            ]);
+        }
+    }
+
+    public const HONEYPOT_FIELD = 'contact_url';
+
+    private const MAX_VALUE_LENGTH = 65535;
+
+    private const CHOICE_TYPES = ['select', 'multiselect', 'radio', 'checkbox'];
+
+    private function isAllowedChoice($field, string $fieldType, array $selected): bool
+    {
+        if (!in_array($fieldType, self::CHOICE_TYPES, true)) {
+            return true;
+        }
+
+        $options = json_decode((string) $field->getData('options'), true);
+        if (!is_array($options) || $options === []) {
+            return true;
+        }
+
+        $allowed = [];
+        foreach ($options as $option) {
+            $optionValue = is_array($option) ? ($option['value'] ?? $option['label'] ?? '') : $option;
+            if (is_scalar($optionValue)) {
+                $allowed[] = trim((string) $optionValue);
+            }
+        }
+
+        foreach ($selected as $item) {
+            if (!in_array($item, $allowed, true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function warnIfHoneypotMissing(): void
+    {
+        if (!$this->helper->isHoneypotEnabled()) {
+            return;
+        }
+
+        if ($this->request->getParam(self::HONEYPOT_FIELD) !== null) {
+            return;
+        }
+
+        $this->logger->info(
+            'Panth DynamicForms: the honeypot field was not present in the submission. '
+            . 'A custom form template is probably missing '
+            . '<?= $block->getAntiSpamFieldsHtml() ?> inside the <form>. '
+            . 'The honeypot check is being skipped; the content guard still applies.'
+        );
+    }
+
+    private function detectSpam(): ?string
+    {
+        if ($this->helper->isHoneypotEnabled()
+            && trim((string) $this->request->getParam(self::HONEYPOT_FIELD, '')) !== ''
+        ) {
+            return 'honeypot filled';
+        }
+
+        $values = $this->collectInspectableValues();
+
+        return $this->contentGuard->detect($values, array_keys($values));
+    }
+
+    private function collectInspectableValues(): array
+    {
+        $skip = ['form_key', 'form_id', 'ajax', self::HONEYPOT_FIELD];
+        $values = [];
+
+        foreach ($this->request->getParams() as $key => $value) {
+            $key = (string) $key;
+            if (in_array($key, $skip, true) || str_starts_with($key, '_')) {
+                continue;
+            }
+            $values[$key] = $value;
+        }
+
+        return $values;
+    }
+
+    private function validateFieldValue(string $value, array $rules, string $label): ?string
+    {
+        if (isset($rules['min_length']) && mb_strlen($value) < (int) $rules['min_length']) {
+            return (string) __('%1 must be at least %2 characters.', $label, $rules['min_length']);
+        }
+
+        if (isset($rules['max_length']) && mb_strlen($value) > (int) $rules['max_length']) {
+            return (string) __('%1 must be no more than %2 characters.', $label, $rules['max_length']);
+        }
+
+        if (isset($rules['min']) && is_numeric($value) && (float) $value < (float) $rules['min']) {
+            return (string) __('%1 must be at least %2.', $label, $rules['min']);
+        }
+
+        if (isset($rules['max']) && is_numeric($value) && (float) $value > (float) $rules['max']) {
+            return (string) __('%1 must be no more than %2.', $label, $rules['max']);
+        }
+
+        if (isset($rules['pattern']) && !preg_match($this->buildPatternRegex((string) $rules['pattern']), $value)) {
+            $msg = $rules['pattern_message'] ?? __('Please enter a valid value for %1.', $label);
+            return (string) $msg;
+        }
+
+        return null;
+    }
+
+    private function buildPatternRegex(string $pattern): string
+    {
+        return '/' . preg_replace('/(?<!\\\\)((?:\\\\\\\\)*)\//', '$1\\/', $pattern) . '/';
+    }
+}
