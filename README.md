@@ -217,7 +217,7 @@ The four `panth_dynamic_form*` tables and their data, the `panth_dynamicforms/*`
 
 ## License
 
-Commercial software license. See [LICENSE.txt](LICENSE.txt) in this repository.
+Free and open source under the MIT License. See [LICENSE.txt](LICENSE.txt).
 
 ## Changelog
 
